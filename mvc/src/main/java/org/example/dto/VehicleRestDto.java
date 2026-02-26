@@ -17,4 +17,5 @@ public class VehicleRestDto {
     private BigDecimal price;
     private String country;
     private UUID brandId;
+    private UUID activeDriverId;
 }

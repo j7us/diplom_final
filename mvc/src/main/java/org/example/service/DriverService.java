@@ -8,9 +8,11 @@ import org.example.entity.Driver;
 import org.example.map.DriverRestMapper;
 import org.example.repository.DriverRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DriverService {
     private final DriverRepository driverRepository;
     private final DriverRestMapper driverRestMapper;

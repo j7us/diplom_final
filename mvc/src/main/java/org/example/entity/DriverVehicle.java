@@ -4,10 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,22 +12,22 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "drivers")
+@Table(name = "driver_vehicles")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Driver {
+public class DriverVehicle {
     @Id
     private UUID id;
-    private String name;
-    private BigDecimal salary;
-    private BigDecimal workExperience;
 
     @ManyToOne
-    @JoinColumn(name = "enterprise_id")
-    private Enterprise enterprise;
+    @JoinColumn(name = "driver_id")
+    private Driver driver;
 
-    @OneToMany(mappedBy = "driver")
-    private List<DriverVehicle> driverVehicles;
+    @ManyToOne
+    @JoinColumn(name = "vehicle_id")
+    private Vehicle vehicle;
+
+    private Boolean active;
 }

@@ -8,9 +8,11 @@ import org.example.entity.Enterprise;
 import org.example.map.EnterpriseRestMapper;
 import org.example.repository.EnterpriseRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class EnterpriseService {
     private final EnterpriseRepository enterpriseRepository;
     private final EnterpriseRestMapper enterpriseRestMapper;

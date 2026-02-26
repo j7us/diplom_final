@@ -10,9 +10,11 @@ import org.example.map.BrandMapper;
 import org.example.map.BrandRestMapper;
 import org.example.repository.BrandRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BrandService {
     private final BrandRepository brandRepository;
     private final BrandMapper brandMapper;
@@ -38,18 +40,21 @@ public class BrandService {
         return brandRestMapper.toDto(brandRepository.findById(id).orElseThrow());
     }
 
+    @Transactional
     public void save(BrandDto dto) {
         Brand brand = brandMapper.toEntity(dto);
         brand.setId(UUID.randomUUID());
         brandMapper.toDto(brandRepository.save(brand));
     }
 
+    @Transactional
     public void update(UUID id, BrandDto dto) {
         Brand brand = brandRepository.findById(id).orElseThrow();
         brandMapper.updateEntity(dto, brand);
         brandMapper.toDto(brandRepository.save(brand));
     }
 
+    @Transactional
     public void delete(UUID id) {
         brandRepository.deleteById(id);
     }
