@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.VehicleDto;
+import org.example.dto.VehicleRestDto;
 import org.example.entity.Brand;
 import org.example.entity.Vehicle;
 import org.example.map.VehicleMapper;
+import org.example.map.VehicleRestMapper;
 import org.example.repository.BrandRepository;
 import org.example.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ public class VehicleService {
     private final VehicleRepository vehicleRepository;
     private final BrandRepository brandRepository;
     private final VehicleMapper vehicleMapper;
+    private final VehicleRestMapper vehicleRestMapper;
 
     public List<VehicleDto> getAll() {
         return vehicleRepository.findAll().stream()
@@ -26,6 +29,16 @@ public class VehicleService {
 
     public VehicleDto getById(UUID id) {
         return vehicleMapper.toDto(vehicleRepository.findById(id).orElseThrow());
+    }
+
+    public List<VehicleRestDto> getAllWithBrandIdOnly() {
+        return vehicleRepository.findAll().stream()
+                .map(vehicleRestMapper::toDto)
+                .toList();
+    }
+
+    public VehicleRestDto getByIdWithBrandIdOnly(UUID id) {
+        return vehicleRestMapper.toDto(vehicleRepository.findById(id).orElseThrow());
     }
 
     public void create(VehicleDto dto) {

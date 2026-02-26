@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.BrandDto;
+import org.example.dto.BrandRestDto;
+import org.example.entity.Brand;
 import org.example.map.BrandMapper;
+import org.example.map.BrandRestMapper;
 import org.example.repository.BrandRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class BrandService {
     private final BrandRepository brandRepository;
     private final BrandMapper brandMapper;
+    private final BrandRestMapper brandRestMapper;
 
     public List<BrandDto> getAll() {
         return brandRepository.findAll().stream()
@@ -24,14 +28,24 @@ public class BrandService {
         return brandMapper.toDto(brandRepository.findById(id).orElseThrow());
     }
 
+    public List<BrandRestDto> getAllRest() {
+        return brandRepository.findAll().stream()
+                .map(brandRestMapper::toDto)
+                .toList();
+    }
+
+    public BrandRestDto getRestById(UUID id) {
+        return brandRestMapper.toDto(brandRepository.findById(id).orElseThrow());
+    }
+
     public void save(BrandDto dto) {
-        var brand = brandMapper.toEntity(dto);
+        Brand brand = brandMapper.toEntity(dto);
         brand.setId(UUID.randomUUID());
         brandMapper.toDto(brandRepository.save(brand));
     }
 
     public void update(UUID id, BrandDto dto) {
-        var brand = brandRepository.findById(id).orElseThrow();
+        Brand brand = brandRepository.findById(id).orElseThrow();
         brandMapper.updateEntity(dto, brand);
         brandMapper.toDto(brandRepository.save(brand));
     }

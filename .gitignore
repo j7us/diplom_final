@@ -24,6 +24,9 @@ target/
 .mvn
 AGENTS.md
 project.md
+task.txt
+plan.md
+.agents
 
 ### NetBeans ###
 /nbproject/private/
