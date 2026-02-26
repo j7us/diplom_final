@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 @RequiredArgsConstructor
-public class VehicleController {
+public class ModelVehicleController {
     private final VehicleService vehicleService;
     private final BrandService brandService;
 
