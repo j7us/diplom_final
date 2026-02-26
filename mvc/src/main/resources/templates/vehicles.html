@@ -25,7 +25,7 @@
 <body>
 <h1>Автомобили</h1>
 <div>
-    <a th:href="@{/vehicles/new}">Добавить автомобиль</a>
+    <a th:href="@{/view/vehicles/new}">Добавить автомобиль</a>
 </div>
 <table>
     <thead>
@@ -44,8 +44,8 @@
         <td th:text="${vehicle.country}"></td>
         <td th:text="${vehicle.brandName} ?: '-'"></td>
         <td>
-            <a th:href="@{/vehicles/{id}/edit(id=${vehicle.id})}">Редактировать</a>
-            <form th:action="@{/vehicles/{id}/delete(id=${vehicle.id})}" method="post" style="display:inline">
+            <a th:href="@{/view/vehicles/{id}/edit(id=${vehicle.id})}">Редактировать</a>
+            <form th:action="@{/view/vehicles/{id}/delete(id=${vehicle.id})}" method="post" style="display:inline">
                 <button type="submit">Удалить</button>
             </form>
         </td>
@@ -55,7 +55,7 @@
 
 <h1>Бренды</h1>
 <div>
-    <a th:href="@{/brands/new}">Добавить бренд</a>
+    <a th:href="@{/view/brands/new}">Добавить бренд</a>
 </div>
 <table>
     <thead>
@@ -76,8 +76,8 @@
         <td th:text="${brand.drive}"></td>
         <td th:text="${brand.weight}"></td>
         <td>
-            <a th:href="@{/brands/{id}/edit(id=${brand.id})}">Редактировать</a>
-            <form th:action="@{/brands/{id}/delete(id=${brand.id})}" method="post" style="display:inline">
+            <a th:href="@{/view/brands/{id}/edit(id=${brand.id})}">Редактировать</a>
+            <form th:action="@{/view/brands/{id}/delete(id=${brand.id})}" method="post" style="display:inline">
                 <button type="submit">Удалить</button>
             </form>
         </td>
