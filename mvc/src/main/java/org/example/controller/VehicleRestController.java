@@ -7,6 +7,8 @@ import org.example.dto.BrandRestDto;
 import org.example.dto.VehicleRestDto;
 import org.example.service.BrandService;
 import org.example.service.VehicleService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +22,8 @@ public class VehicleRestController {
     private final BrandService brandService;
 
     @GetMapping("/vehicles")
-    public List<VehicleRestDto> getVehicles() {
-        return vehicleService.getAllWithBrandIdOnly();
+    public List<VehicleRestDto> getVehicles(@AuthenticationPrincipal UserDetails userDetails) {
+        return vehicleService.getAllWithBrandIdOnly(userDetails.getUsername());
     }
 
     @GetMapping("/brands")
@@ -30,8 +32,8 @@ public class VehicleRestController {
     }
 
     @GetMapping("/vehicle/{id}/")
-    public VehicleRestDto getVehicle(@PathVariable UUID id) {
-        return vehicleService.getByIdWithBrandIdOnly(id);
+    public VehicleRestDto getVehicle(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
+        return vehicleService.getByIdWithBrandIdOnly(id, userDetails.getUsername());
     }
 
     @GetMapping("/brand/{id}/")

@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class VehicleService {
     private final VehicleRepository vehicleRepository;
     private final BrandRepository brandRepository;
+    private final EnterpriseService enterpriseService;
     private final VehicleMapper vehicleMapper;
     private final VehicleRestMapper vehicleRestMapper;
 
@@ -33,16 +34,26 @@ public class VehicleService {
         return vehicleMapper.toDto(vehicleRepository.findById(id).orElseThrow());
     }
 
-    public List<VehicleRestDto> getAllWithBrandIdOnly() {
-        List<Vehicle> vehicles = vehicleRepository.findAll();
+    public List<VehicleRestDto> getAllWithBrandIdOnly(String username) {
+        List<UUID> enterpriseIds = enterpriseService.getEnterpriseIdsByManagerUsername(username);
+
+        if (enterpriseIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<Vehicle> vehicles = vehicleRepository.findAllByEnterprise_IdIn(enterpriseIds);
 
         return vehicles.stream()
                 .map(vehicleRestMapper::toDto)
                 .toList();
     }
 
-    public VehicleRestDto getByIdWithBrandIdOnly(UUID id) {
-        return vehicleRestMapper.toDto(vehicleRepository.findById(id).orElseThrow());
+    public VehicleRestDto getByIdWithBrandIdOnly(UUID id, String username) {
+        Vehicle vehicle = vehicleRepository.findById(id).orElseThrow();
+
+        enterpriseService.getByIdAndManagerUsername(vehicle.getEnterprise().getId(), username);
+
+        return vehicleRestMapper.toDto(vehicle);
     }
 
     @Transactional

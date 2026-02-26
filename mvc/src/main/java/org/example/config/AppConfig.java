@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.controller.filter.JwtFilter;
 import org.example.repository.ManagerRepository;
+import org.example.service.ManagerService;
 import org.example.service.security.ManagerAuthService;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -46,8 +47,8 @@ public class AppConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(ManagerRepository repository) {
-        return new ManagerAuthService(repository);
+    public UserDetailsService userDetailsService(ManagerService service) {
+        return new ManagerAuthService(service);
     }
 
     @Bean

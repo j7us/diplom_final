@@ -16,15 +16,24 @@ import org.springframework.transaction.annotation.Transactional;
 public class DriverService {
     private final DriverRepository driverRepository;
     private final DriverRestMapper driverRestMapper;
+    private final EnterpriseService enterpriseService;
 
-    public List<DriverRestDto> getAll() {
-        return driverRepository.findAll().stream()
+    public List<DriverRestDto> getAll(String username) {
+        List<UUID> enterpriseIds = enterpriseService.getEnterpriseIdsByManagerUsername(username);
+
+        if (enterpriseIds.isEmpty()) {
+            return List.of();
+        }
+
+        return driverRepository.findAllByEnterprise_IdIn(enterpriseIds).stream()
                 .map(driverRestMapper::toDto)
                 .toList();
     }
 
-    public DriverRestDto getById(UUID id) {
+    public DriverRestDto getById(UUID id, String username) {
         Driver driver = driverRepository.findById(id).orElseThrow();
+
+        enterpriseService.getByIdAndManagerUsername(driver.getEnterprise().getId(), username);
 
         return driverRestMapper.toDto(driver);
     }

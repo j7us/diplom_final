@@ -1,7 +1,7 @@
 package org.example.service.security;
 
 import lombok.RequiredArgsConstructor;
-import org.example.repository.ManagerRepository;
+import org.example.service.ManagerService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -9,10 +9,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 @RequiredArgsConstructor
 public class ManagerAuthService implements UserDetailsService {
 
-    private final ManagerRepository managerRepository;
+    private final ManagerService managerService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return managerRepository.findByUsername(username).orElseThrow();
+        return managerService.findByUserName(username).orElseThrow();
     }
 }
