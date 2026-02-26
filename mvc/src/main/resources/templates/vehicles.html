@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Автомобили</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 32px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #f3f3f3;
+        }
+    </style>
+</head>
+<body>
+<h1>Автомобили</h1>
+<div>
+    <a th:href="@{/vehicles/new}">Добавить автомобиль</a>
+</div>
+<table>
+    <thead>
+    <tr>
+        <th>Пробег</th>
+        <th>Цена</th>
+        <th>Страна</th>
+        <th>Бренд</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="vehicle : ${vehicles}">
+        <td th:text="${vehicle.milleage}"></td>
+        <td th:text="${vehicle.price}"></td>
+        <td th:text="${vehicle.country}"></td>
+        <td th:text="${vehicle.brandName} ?: '-'"></td>
+        <td>
+            <a th:href="@{/vehicles/{id}/edit(id=${vehicle.id})}">Редактировать</a>
+            <form th:action="@{/vehicles/{id}/delete(id=${vehicle.id})}" method="post" style="display:inline">
+                <button type="submit">Удалить</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<h1>Бренды</h1>
+<div>
+    <a th:href="@{/brands/new}">Добавить бренд</a>
+</div>
+<table>
+    <thead>
+    <tr>
+        <th>Название</th>
+        <th>Тип</th>
+        <th>Вместимость</th>
+        <th>Привод</th>
+        <th>Вес</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="brand : ${brands}">
+        <td th:text="${brand.name}"></td>
+        <td th:text="${brand.type}"></td>
+        <td th:text="${brand.capacity}"></td>
+        <td th:text="${brand.drive}"></td>
+        <td th:text="${brand.weight}"></td>
+        <td>
+            <a th:href="@{/brands/{id}/edit(id=${brand.id})}">Редактировать</a>
+            <form th:action="@{/brands/{id}/delete(id=${brand.id})}" method="post" style="display:inline">
+                <button type="submit">Удалить</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
