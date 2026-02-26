@@ -10,7 +10,6 @@ import org.example.entity.Vehicle;
 import org.example.map.VehicleMapper;
 import org.example.map.VehicleRestMapper;
 import org.example.repository.BrandRepository;
-import org.example.repository.DriverVehicleRepository;
 import org.example.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
