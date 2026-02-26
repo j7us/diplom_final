@@ -3,7 +3,6 @@ package org.example.config;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.controller.filter.JwtFilter;
-import org.example.repository.ManagerRepository;
 import org.example.service.ManagerService;
 import org.example.service.security.ManagerAuthService;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
