@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class VehicleService {
     private final VehicleRepository vehicleRepository;
     private final BrandRepository brandRepository;
-    private final DriverVehicleRepository driverVehicleRepository;
     private final VehicleMapper vehicleMapper;
     private final VehicleRestMapper vehicleRestMapper;
 
