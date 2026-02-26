@@ -39,6 +39,14 @@ public class Manager implements UserDetails {
     @OneToMany(mappedBy = "manager", fetch = FetchType.EAGER)
     private List<AuthGrantedAuthority> auth = new ArrayList<>();
 
+    @ManyToMany
+    @JoinTable(
+        name = "manager_enterprise",
+        joinColumns = @JoinColumn(name = "manager_id"),
+        inverseJoinColumns = @JoinColumn(name = "enterprise_id")
+    )
+    private List<Enterprise> enterprises;
+
     @Override
     public String getUsername() {
         return username;

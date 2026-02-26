@@ -2,6 +2,7 @@ package org.example.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
@@ -29,4 +30,7 @@ public class Enterprise {
 
     @OneToMany(mappedBy = "enterprise")
     private List<Vehicle> vehicles;
+
+    @ManyToMany(mappedBy = "enterprises")
+    private List<Manager> managers;
 }
