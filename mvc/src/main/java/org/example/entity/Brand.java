@@ -21,7 +21,6 @@ import lombok.Setter;
 public class Brand {
     @Id
     private UUID id;
-
     private String name;
     private String type;
     private Integer capacity;

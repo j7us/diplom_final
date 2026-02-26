@@ -13,21 +13,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "vehicles")
+@Table(name = "drivers")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Vehicle {
+public class Driver {
     @Id
     private UUID id;
-    private Integer milleage;
-    private BigDecimal price;
-    private String country;
-
-    @ManyToOne
-    @JoinColumn(name = "brand_id")
-    private Brand brand;
+    private String name;
+    private BigDecimal salary;
+    private BigDecimal workExperience;
 
     @ManyToOne
     @JoinColumn(name = "enterprise_id")

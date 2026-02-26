@@ -2,10 +2,9 @@ package org.example.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,23 +12,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "vehicles")
+@Table(name = "enterprises")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Vehicle {
+public class Enterprise {
     @Id
     private UUID id;
-    private Integer milleage;
-    private BigDecimal price;
+    private String name;
     private String country;
+    private Integer productionCapacity;
 
-    @ManyToOne
-    @JoinColumn(name = "brand_id")
-    private Brand brand;
+    @OneToMany(mappedBy = "enterprise")
+    private List<Driver> drivers;
 
-    @ManyToOne
-    @JoinColumn(name = "enterprise_id")
-    private Enterprise enterprise;
+    @OneToMany(mappedBy = "enterprise")
+    private List<Vehicle> vehicles;
 }
