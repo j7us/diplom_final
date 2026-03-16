@@ -1,10 +1,7 @@
 package org.example.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -13,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "enterprises")
+@Table(name = "enterprise")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,12 +22,17 @@ public class Enterprise {
     private String country;
     private Integer productionCapacity;
 
-    @OneToMany(mappedBy = "enterprise")
+    @OneToMany(mappedBy = "enterprise", cascade = CascadeType.ALL)
     private List<Driver> drivers;
 
-    @OneToMany(mappedBy = "enterprise")
+    @OneToMany(mappedBy = "enterprise", cascade = CascadeType.ALL)
     private List<Vehicle> vehicles;
 
-    @ManyToMany(mappedBy = "enterprises")
+    @ManyToMany
+    @JoinTable(
+            name = "manager_enterprise",
+            joinColumns = @JoinColumn(name = "enterprise_id"),
+            inverseJoinColumns = @JoinColumn(name = "manager_id")
+    )
     private List<Manager> managers;
 }

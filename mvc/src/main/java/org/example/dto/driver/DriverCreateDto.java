@@ -1,4 +1,4 @@
-package org.example.dto;
+package org.example.dto.driver;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -11,11 +11,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BrandRestDto {
-    private UUID id;
+public class DriverCreateDto {
     private String name;
-    private String type;
-    private Integer capacity;
-    private String drive;
-    private BigDecimal weight;
+    private BigDecimal salary;
+    private BigDecimal workExperience;
+    private UUID enterpriseId;
 }

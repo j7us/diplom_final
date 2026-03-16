@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DriverRepository extends JpaRepository<Driver, UUID> {
     List<Driver> findAllByEnterprise_IdIn(List<UUID> enterpriseIds);
+
+    void deleteAllByEnterprise_Id(UUID enterpriseId);
 }

@@ -1,6 +1,6 @@
 package org.example.map;
 
-import org.example.dto.BrandDto;
+import org.example.dto.brand.BrandDto;
 import org.example.entity.Brand;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

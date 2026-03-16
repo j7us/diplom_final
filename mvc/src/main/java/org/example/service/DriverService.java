@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.DriverRestDto;
+import org.example.dto.driver.DriverCreateDto;
 import org.example.entity.Driver;
 import org.example.map.DriverRestMapper;
 import org.example.repository.DriverRepository;
@@ -36,5 +37,26 @@ public class DriverService {
         enterpriseService.getByIdAndManagerUsername(driver.getEnterprise().getId(), username);
 
         return driverRestMapper.toDto(driver);
+    }
+
+    public Driver getEntityById(UUID id) {
+        return driverRepository.findById(id).orElseThrow();
+    }
+
+    @Transactional
+    public DriverRestDto create(DriverCreateDto dto) {
+        Driver driver = driverRestMapper.toEntity(dto);
+
+        driver.setId(UUID.randomUUID());
+        driver.setEnterprise(enterpriseService.getEntityById(dto.getEnterpriseId()));
+
+        Driver savedDriver = driverRepository.save(driver);
+
+        return driverRestMapper.toDto(savedDriver);
+    }
+
+    @Transactional
+    public void deleteByEnterpriseId(UUID enterpriseId) {
+        driverRepository.deleteAllByEnterprise_Id(enterpriseId);
     }
 }

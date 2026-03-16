@@ -1,4 +1,4 @@
-package org.example.dto;
+package org.example.dto.vehicle;
 
 import java.math.BigDecimal;
 import java.util.UUID;

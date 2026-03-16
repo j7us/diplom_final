@@ -3,13 +3,16 @@ package org.example.service;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.VehicleDto;
-import org.example.dto.VehicleRestDto;
+import org.example.dto.vehicle.VehicleCreateRestDto;
+import org.example.dto.vehicle.VehicleDto;
+import org.example.dto.vehicle.VehicleRestDto;
 import org.example.entity.Brand;
+import org.example.entity.Enterprise;
 import org.example.entity.Vehicle;
 import org.example.map.VehicleMapper;
 import org.example.map.VehicleRestMapper;
 import org.example.repository.BrandRepository;
+import org.example.repository.DriverVehicleRepository;
 import org.example.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,9 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class VehicleService {
     private final VehicleRepository vehicleRepository;
     private final BrandRepository brandRepository;
+    private final BrandService brandService;
     private final EnterpriseService enterpriseService;
     private final VehicleMapper vehicleMapper;
     private final VehicleRestMapper vehicleRestMapper;
+    private final DriverVehicleRepository driverVehicleRepository;
 
     public List<VehicleDto> getAll() {
         return vehicleRepository.findAll().stream()
@@ -32,6 +37,10 @@ public class VehicleService {
 
     public VehicleDto getById(UUID id) {
         return vehicleMapper.toDto(vehicleRepository.findById(id).orElseThrow());
+    }
+
+    public Vehicle getEntityById(UUID id) {
+        return vehicleRepository.findById(id).orElseThrow();
     }
 
     public List<VehicleRestDto> getAllWithBrandIdOnly(String username) {
@@ -54,6 +63,56 @@ public class VehicleService {
         enterpriseService.getByIdAndManagerUsername(vehicle.getEnterprise().getId(), username);
 
         return vehicleRestMapper.toDto(vehicle);
+    }
+
+    @Transactional
+    public VehicleRestDto create(VehicleCreateRestDto dto, String username) {
+        Enterprise entityByIdAndManagerUsername
+                = enterpriseService.getEntityByIdAndManagerUsername(dto.getEnterpriseId(), username);
+
+        Vehicle vehicle = vehicleRestMapper.toEntity(dto);
+        vehicle.setId(UUID.randomUUID());
+        vehicle.setBrand(brandService.getEntityById(dto.getBrandId()));
+        vehicle.setEnterprise(entityByIdAndManagerUsername);
+
+        Vehicle savedVehicle = vehicleRepository.save(vehicle);
+
+        return vehicleRestMapper.toDto(savedVehicle);
+    }
+
+    @Transactional
+    public VehicleRestDto create(VehicleCreateRestDto dto) {
+        Enterprise enterprise = enterpriseService.getEntityById(dto.getEnterpriseId());
+
+        Vehicle vehicle = vehicleRestMapper.toEntity(dto);
+        vehicle.setId(UUID.randomUUID());
+        vehicle.setBrand(resolveBrand(dto.getBrandId()));
+        vehicle.setEnterprise(enterprise);
+
+        Vehicle savedVehicle = vehicleRepository.save(vehicle);
+
+        return vehicleRestMapper.toDto(savedVehicle);
+    }
+
+    @Transactional
+    public VehicleRestDto update(UUID id, VehicleRestDto dto, String username) {
+        Vehicle vehicle = vehicleRepository.findById(id).orElseThrow();
+
+        enterpriseService.getByIdAndManagerUsername(vehicle.getEnterprise().getId(), username);
+
+        vehicleRestMapper.updateEntity(dto, vehicle);
+        vehicle.setBrand(brandService.getEntityById(dto.getBrandId()));
+
+        Vehicle savedVehicle = vehicleRepository.save(vehicle);
+
+        return vehicleRestMapper.toDto(savedVehicle);
+    }
+
+    @Transactional(readOnly = false)
+    public void delete(UUID id, String username) {
+        Vehicle vehicle = vehicleRepository.findById(id).orElseThrow();
+        enterpriseService.getEntityByIdAndManagerUsername(vehicle.getEnterprise().getId(), username);
+        vehicleRepository.deleteById(id);
     }
 
     @Transactional
@@ -86,5 +145,12 @@ public class VehicleService {
             return null;
         }
         return brandRepository.findById(UUID.fromString(brandId)).orElseThrow();
+    }
+
+    private Brand resolveBrand(UUID brandId) {
+        if (brandId == null) {
+            return null;
+        }
+        return brandService.getEntityById(brandId);
     }
 }

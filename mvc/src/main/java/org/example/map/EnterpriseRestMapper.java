@@ -8,12 +8,25 @@ import org.example.entity.Enterprise;
 import org.example.entity.Vehicle;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface EnterpriseRestMapper {
     @Mapping(source = "drivers", target = "driverIds")
     @Mapping(source = "vehicles", target = "vehicleIds")
     EnterpriseRestDto toDto(Enterprise enterprise);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "drivers", ignore = true)
+    @Mapping(target = "vehicles", ignore = true)
+    @Mapping(target = "managers", ignore = true)
+    Enterprise toEntity(EnterpriseRestDto dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "drivers", ignore = true)
+    @Mapping(target = "vehicles", ignore = true)
+    @Mapping(target = "managers", ignore = true)
+    void updateEntity(EnterpriseRestDto dto, @MappingTarget Enterprise enterprise);
 
     default List<UUID> mapDrivers(List<Driver> drivers) {
         if (drivers == null) {

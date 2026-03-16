@@ -2,8 +2,8 @@ package org.example.controller;
 
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.BrandDto;
-import org.example.dto.VehicleDto;
+import org.example.dto.brand.BrandDto;
+import org.example.dto.vehicle.VehicleDto;
 import org.example.service.BrandService;
 import org.example.service.VehicleService;
 import org.springframework.stereotype.Controller;

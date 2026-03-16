@@ -3,14 +3,19 @@ package org.example.controller;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.BrandRestDto;
-import org.example.dto.VehicleRestDto;
+import org.example.dto.brand.BrandRestDto;
+import org.example.dto.vehicle.VehicleCreateRestDto;
+import org.example.dto.vehicle.VehicleRestDto;
 import org.example.service.BrandService;
 import org.example.service.VehicleService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,5 +44,23 @@ public class VehicleRestController {
     @GetMapping("/brand/{id}/")
     public BrandRestDto getBrand(@PathVariable UUID id) {
         return brandService.getRestById(id);
+    }
+
+    @PostMapping("/vehicles")
+    public VehicleRestDto createVehicle(@RequestBody VehicleCreateRestDto dto,
+                                        @AuthenticationPrincipal UserDetails userDetails) {
+        return vehicleService.create(dto, userDetails.getUsername());
+    }
+
+    @PutMapping("/vehicle/{id}/")
+    public VehicleRestDto updateVehicle(@PathVariable UUID id,
+                                        @RequestBody VehicleRestDto dto,
+                                        @AuthenticationPrincipal UserDetails userDetails) {
+        return vehicleService.update(id, dto, userDetails.getUsername());
+    }
+
+    @DeleteMapping("/vehicle/{id}/")
+    public void deleteVehicle(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
+        vehicleService.delete(id, userDetails.getUsername());
     }
 }

@@ -3,8 +3,8 @@ package org.example.service;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.BrandDto;
-import org.example.dto.BrandRestDto;
+import org.example.dto.brand.BrandDto;
+import org.example.dto.brand.BrandRestDto;
 import org.example.entity.Brand;
 import org.example.map.BrandMapper;
 import org.example.map.BrandRestMapper;
@@ -38,6 +38,10 @@ public class BrandService {
 
     public BrandRestDto getRestById(UUID id) {
         return brandRestMapper.toDto(brandRepository.findById(id).orElseThrow());
+    }
+
+    public Brand getEntityById(UUID id) {
+        return brandRepository.findById(id).orElseThrow();
     }
 
     @Transactional

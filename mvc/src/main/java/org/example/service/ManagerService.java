@@ -6,6 +6,7 @@ import org.example.repository.ManagerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,5 +17,10 @@ public class ManagerService {
 
     public Optional<Manager> findByUserName(String username) {
         return managerRepository.findByUsername(username);
+    }
+
+    @Transactional
+    public void save(Manager manager) {
+        managerRepository.save(manager);
     }
 }

@@ -1,6 +1,6 @@
 package org.example.map;
 
-import org.example.dto.VehicleDto;
+import org.example.dto.vehicle.VehicleDto;
 import org.example.entity.Vehicle;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

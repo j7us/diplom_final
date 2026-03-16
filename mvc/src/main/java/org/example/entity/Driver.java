@@ -13,9 +13,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 @Entity
-@Table(name = "drivers")
+@Table(name = "driver")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,5 +34,6 @@ public class Driver {
     private Enterprise enterprise;
 
     @OneToMany(mappedBy = "driver")
+    @Cascade(CascadeType.ALL)
     private List<DriverVehicle> driverVehicles;
 }
