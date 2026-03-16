@@ -8,6 +8,8 @@ import org.example.dto.driver.DriverCreateDto;
 import org.example.entity.Driver;
 import org.example.map.DriverRestMapper;
 import org.example.repository.DriverRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,17 @@ public class DriverService {
         return driverRepository.findAllByEnterprise_IdIn(enterpriseIds).stream()
                 .map(driverRestMapper::toDto)
                 .toList();
+    }
+
+    public Page<DriverRestDto> getAll(String username, Pageable pageable) {
+        List<UUID> enterpriseIds = enterpriseService.getEnterpriseIdsByManagerUsername(username);
+
+        if (enterpriseIds.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        return driverRepository.findAllByEnterprise_IdIn(enterpriseIds, pageable)
+                .map(driverRestMapper::toDto);
     }
 
     public DriverRestDto getById(UUID id, String username) {

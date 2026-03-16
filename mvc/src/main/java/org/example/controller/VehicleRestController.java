@@ -8,6 +8,8 @@ import org.example.dto.vehicle.VehicleCreateRestDto;
 import org.example.dto.vehicle.VehicleRestDto;
 import org.example.service.BrandService;
 import org.example.service.VehicleService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,6 +31,12 @@ public class VehicleRestController {
     @GetMapping("/vehicles")
     public List<VehicleRestDto> getVehicles(@AuthenticationPrincipal UserDetails userDetails) {
         return vehicleService.getAllWithBrandIdOnly(userDetails.getUsername());
+    }
+
+    @GetMapping(value = "/vehicles", params = {"page", "size"})
+    public Page<VehicleRestDto> getVehiclesPage(@AuthenticationPrincipal UserDetails userDetails,
+                                                Pageable pageable) {
+        return vehicleService.getAll(userDetails.getUsername(), pageable);
     }
 
     @GetMapping("/brands")

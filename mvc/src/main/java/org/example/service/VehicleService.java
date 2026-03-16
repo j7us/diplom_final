@@ -13,6 +13,8 @@ import org.example.map.VehicleMapper;
 import org.example.map.VehicleRestMapper;
 import org.example.repository.BrandRepository;
 import org.example.repository.VehicleRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +55,17 @@ public class VehicleService {
         return vehicles.stream()
                 .map(vehicleRestMapper::toDto)
                 .toList();
+    }
+
+    public Page<VehicleRestDto> getAll(String username, Pageable pageable) {
+        List<UUID> enterpriseIds = enterpriseService.getEnterpriseIdsByManagerUsername(username);
+
+        if (enterpriseIds.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        return vehicleRepository.findAllByEnterprise_IdIn(enterpriseIds, pageable)
+                .map(vehicleRestMapper::toDto);
     }
 
     public VehicleRestDto getByIdWithBrandIdOnly(UUID id, String username) {
