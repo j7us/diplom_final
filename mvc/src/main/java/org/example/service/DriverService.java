@@ -54,9 +54,4 @@ public class DriverService {
 
         return driverRestMapper.toDto(savedDriver);
     }
-
-    @Transactional
-    public void deleteByEnterpriseId(UUID enterpriseId) {
-        driverRepository.deleteAllByEnterprise_Id(enterpriseId);
-    }
 }

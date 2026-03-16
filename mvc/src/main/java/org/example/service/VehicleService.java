@@ -12,7 +12,6 @@ import org.example.entity.Vehicle;
 import org.example.map.VehicleMapper;
 import org.example.map.VehicleRestMapper;
 import org.example.repository.BrandRepository;
-import org.example.repository.DriverVehicleRepository;
 import org.example.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +26,6 @@ public class VehicleService {
     private final EnterpriseService enterpriseService;
     private final VehicleMapper vehicleMapper;
     private final VehicleRestMapper vehicleRestMapper;
-    private final DriverVehicleRepository driverVehicleRepository;
 
     public List<VehicleDto> getAll() {
         return vehicleRepository.findAll().stream()
@@ -108,7 +106,7 @@ public class VehicleService {
         return vehicleRestMapper.toDto(savedVehicle);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void delete(UUID id, String username) {
         Vehicle vehicle = vehicleRepository.findById(id).orElseThrow();
         enterpriseService.getEntityByIdAndManagerUsername(vehicle.getEnterprise().getId(), username);
