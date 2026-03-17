@@ -23,12 +23,7 @@ public class ModelVehicleController {
     public String allInfo(Model model) {
         model.addAttribute("vehicles", vehicleService.getAll());
         model.addAttribute("brands", brandService.getAll());
-        return "vehicles";
-    }
-
-    @GetMapping("/view/enterprise-vehicles")
-    public String enterpriseVehiclesPage() {
-        return "enterprise-vehicles";
+        return "model/vehicles";
     }
 
     @GetMapping("/view/vehicles/new")
@@ -38,7 +33,7 @@ public class ModelVehicleController {
         model.addAttribute("action", "/view/vehicles");
         model.addAttribute("title", "Добавить автомобиль");
         model.addAttribute("submitLabel", "Сохранить");
-        return "vehicle-form";
+        return "model/vehicle-form";
     }
 
     @GetMapping("/view/vehicles/{id}/edit")
@@ -48,7 +43,7 @@ public class ModelVehicleController {
         model.addAttribute("action", "/view/vehicles/" + id);
         model.addAttribute("title", "Редактировать автомобиль");
         model.addAttribute("submitLabel", "Обновить");
-        return "vehicle-form";
+        return "model/vehicle-form";
     }
 
     @PostMapping("/view/vehicles")
@@ -75,7 +70,7 @@ public class ModelVehicleController {
         model.addAttribute("action", "/view/brands");
         model.addAttribute("title", "Добавить бренд");
         model.addAttribute("submitLabel", "Сохранить");
-        return "brand-form";
+        return "model/brand-form";
     }
 
     @GetMapping("/view/brands/{id}/edit")
@@ -84,7 +79,7 @@ public class ModelVehicleController {
         model.addAttribute("action", "/view/brands/" + id);
         model.addAttribute("title", "Редактировать бренд");
         model.addAttribute("submitLabel", "Обновить");
-        return "brand-form";
+        return "model/brand-form";
     }
 
     @PostMapping("/view/brands")

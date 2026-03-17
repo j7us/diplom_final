@@ -12,6 +12,7 @@ target/
 *.iml
 *.ipr
 spring-shell.log
+frontend.md
 
 ### Eclipse ###
 .apt_generated
