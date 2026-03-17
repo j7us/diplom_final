@@ -99,10 +99,10 @@
         countryCell.textContent = vehicle.country || "-";
 
         const brandCell = document.createElement("td");
-        brandCell.textContent = vehicle.brandId || "-";
+        brandCell.textContent = vehicle.brandName || "-";
 
         const driverCell = document.createElement("td");
-        driverCell.textContent = vehicle.activeDriverId || "-";
+        driverCell.textContent = vehicle.activeDriverName || "-";
 
         row.appendChild(idCell);
         row.appendChild(mileageCell);
