@@ -17,7 +17,9 @@ import org.springframework.util.CollectionUtils;
 @Mapper(componentModel = "spring")
 public interface VehicleRestMapper {
     @Mapping(source = "brand.id", target = "brandId")
+    @Mapping(source = "brand.name", target = "brandName")
     @Mapping(target = "activeDriverId", source = "driverVehicles", qualifiedByName = "findActiveDriver")
+    @Mapping(target = "activeDriverName", source = "driverVehicles", qualifiedByName = "findActiveDriverName")
     VehicleRestDto toDto(Vehicle vehicle);
 
     @Mapping(target = "id", ignore = true)
@@ -45,6 +47,22 @@ public interface VehicleRestMapper {
         return activeDriver
                 .map(DriverVehicle::getDriver)
                 .map(Driver::getId)
+                .orElse(null);
+    }
+
+    @Named("findActiveDriverName")
+    default String findActiveDriverName(List<DriverVehicle> activeDrivers) {
+        if (CollectionUtils.isEmpty(activeDrivers)) {
+            return null;
+        }
+
+        Optional<DriverVehicle> activeDriver = activeDrivers.stream()
+                .filter(DriverVehicle::getActive)
+                .findFirst();
+
+        return activeDriver
+                .map(DriverVehicle::getDriver)
+                .map(Driver::getName)
                 .orElse(null);
     }
 }

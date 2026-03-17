@@ -11,4 +11,6 @@ public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
     List<Vehicle> findAllByEnterprise_IdIn(List<UUID> enterpriseIds);
 
     Page<Vehicle> findAllByEnterprise_IdIn(List<UUID> enterpriseIds, Pageable pageable);
+
+    Page<Vehicle> findAllByEnterprise_Id(UUID enterpriseId, Pageable pageable);
 }

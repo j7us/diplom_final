@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Предприятия менеджера</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Предприятия</h1>
+    </div>
+
+    <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+    <div id="emptyMessage" class="alert alert-info d-none" role="alert">Нет предприятий для отображения.</div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Название</th>
+                        <th scope="col">Страна</th>
+                        <th scope="col">Производственная мощность</th>
+                        <th scope="col">Машины</th>
+                    </tr>
+                    </thead>
+                    <tbody id="enterpriseTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const errorMessage = document.getElementById("errorMessage");
+    const emptyMessage = document.getElementById("emptyMessage");
+    const tableBody = document.getElementById("enterpriseTableBody");
+
+    const showError = (message) => {
+        errorMessage.textContent = message;
+        errorMessage.classList.remove("d-none");
+    };
+
+    const showEmpty = () => {
+        emptyMessage.classList.remove("d-none");
+    };
+
+    const renderRow = (enterprise) => {
+        const row = document.createElement("tr");
+
+        const idCell = document.createElement("td");
+        idCell.textContent = enterprise.id || "-";
+
+        const nameCell = document.createElement("td");
+        nameCell.textContent = enterprise.name || "-";
+
+        const countryCell = document.createElement("td");
+        countryCell.textContent = enterprise.country || "-";
+
+        const capacityCell = document.createElement("td");
+        capacityCell.textContent = enterprise.productionCapacity ?? "-";
+
+        const vehiclesCell = document.createElement("td");
+
+        if (enterprise.id) {
+            const link = document.createElement("a");
+            link.href = "/view/enterprise-vehicles?enterpriseId=" + enterprise.id;
+            link.textContent = "Открыть";
+            vehiclesCell.appendChild(link);
+        } else {
+            vehiclesCell.textContent = "-";
+        }
+
+        row.appendChild(idCell);
+        row.appendChild(nameCell);
+        row.appendChild(countryCell);
+        row.appendChild(capacityCell);
+        row.appendChild(vehiclesCell);
+
+        tableBody.appendChild(row);
+    };
+
+    const loadEnterprises = async () => {
+        const accessToken = localStorage.getItem("accessToken");
+
+        if (!accessToken) {
+            showError("Нет токена доступа. Войдите заново.");
+            return;
+        }
+
+        const response = await fetch("/api/enterprises", {
+            headers: {
+                "Authorization": "Bearer " + accessToken
+            }
+        });
+
+        if (!response.ok) {
+            showError("Не удалось получить список предприятий.");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+            showError("Некорректный ответ сервера.");
+            return;
+        }
+
+        if (data.length === 0) {
+            showEmpty();
+            return;
+        }
+
+        data.forEach(renderRow);
+    };
+
+    loadEnterprises();
+</script>
+</body>
+</html>

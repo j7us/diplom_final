@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -35,8 +36,11 @@ public class VehicleRestController {
 
     @GetMapping(value = "/vehicles", params = {"page", "size"})
     public Page<VehicleRestDto> getVehiclesPage(@AuthenticationPrincipal UserDetails userDetails,
-                                                Pageable pageable) {
-        return vehicleService.getAll(userDetails.getUsername(), pageable);
+                                                Pageable pageable,
+                                                @RequestParam(required = false) UUID enterpriseId) {
+        return enterpriseId == null
+                ? vehicleService.getAll(userDetails.getUsername(), pageable)
+                : vehicleService.getAllByEnterprise(userDetails.getUsername(), enterpriseId, pageable);
     }
 
     @GetMapping("/brands")

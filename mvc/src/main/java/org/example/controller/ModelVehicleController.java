@@ -26,6 +26,11 @@ public class ModelVehicleController {
         return "vehicles";
     }
 
+    @GetMapping("/view/enterprise-vehicles")
+    public String enterpriseVehiclesPage() {
+        return "enterprise-vehicles";
+    }
+
     @GetMapping("/view/vehicles/new")
     public String getVehicleCreateInfo(Model model) {
         model.addAttribute("vehicle", new VehicleDto(null, null, null, null, null, null));
