@@ -48,7 +48,7 @@ public class ModelVehicleController {
 
     @PostMapping("/view/vehicles")
     public String saveVehicle(@ModelAttribute("vehicle") VehicleDto vehicle) {
-        vehicleService.create(vehicle);
+        vehicleService.createWithoutEnterprise(vehicle);
         return "redirect:/view/vehicles";
     }
 

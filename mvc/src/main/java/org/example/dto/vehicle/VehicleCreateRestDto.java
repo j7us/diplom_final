@@ -17,4 +17,5 @@ public class VehicleCreateRestDto {
     private String country;
     private UUID brandId;
     private UUID enterpriseId;
+    private UUID activeDriverId;
 }

@@ -9,12 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.DriverRestDto;
 import org.example.dto.brand.BrandRestDto;
 import org.example.dto.driver.DriverCreateDto;
-import org.example.dto.driver.DriverVehicleCreateDto;
 import org.example.dto.vehicle.VehicleCreateRestDto;
-import org.example.dto.vehicle.VehicleRestDto;
 import org.example.service.BrandService;
 import org.example.service.DriverService;
-import org.example.service.DriverVehicleService;
 import org.example.service.VehicleService;
 import org.springframework.shell.command.annotation.Command;
 import org.springframework.shell.command.annotation.Option;
@@ -35,7 +32,6 @@ public class EnterpriseVehicleGeneratorShell {
     private final VehicleService vehicleService;
     private final BrandService brandService;
     private final DriverService driverService;
-    private final DriverVehicleService driverVehicleService;
 
     @Command(description = "Create vehicles for enterprises")
     public String generateVehicles(@Option Integer numberOfVehicles, @Option UUID[] enterprises) {
@@ -55,28 +51,31 @@ public class EnterpriseVehicleGeneratorShell {
 
     private int createVehiclesWithDrivers(UUID enterpriseId, List<BrandRestDto> brands, int numberOfVehicles, int createdCount) {
         for (int i = 0; i < numberOfVehicles; i++) {
-            VehicleRestDto vehicle = createVehicle(enterpriseId, brands);
-
-            createdCount++;
+            UUID driverId = null;
 
             if (needToCreateDriver(createdCount )) {
                 DriverRestDto driver = createDriver(enterpriseId);
-                linkDriverVehicle(vehicle.getId(), driver.getId());
+                driverId = driver.getId();
             }
+
+            createVehicle(enterpriseId, brands, driverId);
+
+            createdCount++;
         }
 
         return createdCount;
     }
 
-    private VehicleRestDto createVehicle(UUID enterpriseId, List<BrandRestDto> brands) {
+    private void createVehicle(UUID enterpriseId, List<BrandRestDto> brands, UUID driverId) {
         VehicleCreateRestDto dto = new VehicleCreateRestDto();
         dto.setMilleage(randomMilleage());
         dto.setPrice(randomMoney(150000));
         dto.setCountry(randomCountry());
         dto.setBrandId(randomBrandId(brands));
         dto.setEnterpriseId(enterpriseId);
+        dto.setActiveDriverId(driverId);
 
-        return vehicleService.create(dto);
+        vehicleService.createWithoutUsername(dto);
     }
 
     private DriverRestDto createDriver(UUID enterpriseId) {
@@ -87,15 +86,6 @@ public class EnterpriseVehicleGeneratorShell {
         driverCreateDto.setEnterpriseId(enterpriseId);
 
         return driverService.create(driverCreateDto);
-    }
-
-    private void linkDriverVehicle(UUID vehicleId, UUID driverId) {
-        DriverVehicleCreateDto driverVehicleCreateDto = new DriverVehicleCreateDto();
-        driverVehicleCreateDto.setDriverId(driverId);
-        driverVehicleCreateDto.setVehicleId(vehicleId);
-        driverVehicleCreateDto.setActive(true);
-
-        driverVehicleService.create(driverVehicleCreateDto);
     }
 
     private UUID randomBrandId(List<BrandRestDto> brands) {
@@ -132,6 +122,6 @@ public class EnterpriseVehicleGeneratorShell {
     }
 
     private boolean needToCreateDriver(int index) {
-        return index % 10 == 0;
+        return index % 10 == 0 && index > 0;
     }
 }

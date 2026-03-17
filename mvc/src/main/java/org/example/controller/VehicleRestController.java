@@ -31,7 +31,7 @@ public class VehicleRestController {
 
     @GetMapping("/vehicles")
     public List<VehicleRestDto> getVehicles(@AuthenticationPrincipal UserDetails userDetails) {
-        return vehicleService.getAllWithBrandIdOnly(userDetails.getUsername());
+        return vehicleService.getAll(userDetails.getUsername());
     }
 
     @GetMapping(value = "/vehicles", params = {"page", "size"})
@@ -50,7 +50,7 @@ public class VehicleRestController {
 
     @GetMapping("/vehicle/{id}/")
     public VehicleRestDto getVehicle(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
-        return vehicleService.getByIdWithBrandIdOnly(id, userDetails.getUsername());
+        return vehicleService.getById(id, userDetails.getUsername());
     }
 
     @GetMapping("/brand/{id}/")

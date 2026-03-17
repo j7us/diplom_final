@@ -9,6 +9,6 @@ public record VehicleDto(
         BigDecimal price,
         String country,
         String brandName,
-        String brandId
+        UUID brandId
 ) {
 }
