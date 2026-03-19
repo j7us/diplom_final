@@ -2,6 +2,8 @@ package org.example.cli;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -74,6 +76,7 @@ public class EnterpriseVehicleGeneratorShell {
         dto.setBrandId(randomBrandId(brands));
         dto.setEnterpriseId(enterpriseId);
         dto.setActiveDriverId(driverId);
+        dto.setProductionDate(OffsetDateTime.now());
 
         vehicleService.createWithoutUsername(dto);
     }

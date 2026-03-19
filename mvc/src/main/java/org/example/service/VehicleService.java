@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.vehicle.VehicleCreateRestDto;
 import org.example.dto.vehicle.VehicleDto;
 import org.example.dto.vehicle.VehicleRestDto;
+import org.example.dto.vehicle.VehicleUpdateRestDto;
 import org.example.entity.Brand;
 import org.example.entity.Enterprise;
 import org.example.entity.Vehicle;
@@ -59,7 +60,7 @@ public class VehicleService {
     }
 
     public Page<VehicleRestDto> getAllByEnterprise(String username, UUID enterpriseId, Pageable pageable) {
-        enterpriseService.getEntityByIdAndManagerUsername(enterpriseId, username);
+        Enterprise enterprise = enterpriseService.getEntityByIdAndManagerUsername(enterpriseId, username);
 
         return vehicleRepository.findAllByEnterprise_Id(enterpriseId, pageable)
                 .map(vehicleRestMapper::toDto);
@@ -130,7 +131,7 @@ public class VehicleService {
     }
 
     @Transactional
-    public VehicleRestDto update(UUID id, VehicleRestDto dto, String username) {
+    public VehicleRestDto update(UUID id, VehicleUpdateRestDto dto, String username) {
         Vehicle vehicle = vehicleRepository.findById(id).orElseThrow();
 
         enterpriseService.getByIdAndManagerUsername(vehicle.getEnterprise().getId(), username);

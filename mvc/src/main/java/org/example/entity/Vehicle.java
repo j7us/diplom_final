@@ -3,6 +3,7 @@ package org.example.entity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ public class Vehicle {
     private Integer milleage;
     private BigDecimal price;
     private String country;
+    private Instant productionDate;
 
     @ManyToOne
     @JoinColumn(name = "brand_id")

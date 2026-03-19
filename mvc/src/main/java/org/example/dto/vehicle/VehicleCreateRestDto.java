@@ -1,6 +1,7 @@
 package org.example.dto.vehicle;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,7 @@ public class VehicleCreateRestDto {
     private Integer milleage;
     private BigDecimal price;
     private String country;
+    private OffsetDateTime productionDate;
     private UUID brandId;
     private UUID enterpriseId;
     private UUID activeDriverId;

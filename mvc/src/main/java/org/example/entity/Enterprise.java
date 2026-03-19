@@ -21,6 +21,7 @@ public class Enterprise {
     private String name;
     private String country;
     private Integer productionCapacity;
+    private String timeZone;
 
     @OneToMany(mappedBy = "enterprise", cascade = CascadeType.ALL)
     private List<Driver> drivers;

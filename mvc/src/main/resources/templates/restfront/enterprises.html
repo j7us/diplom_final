@@ -25,7 +25,9 @@
                         <th scope="col">Название</th>
                         <th scope="col">Страна</th>
                         <th scope="col">Производственная мощность</th>
+                        <th scope="col">Часовой пояс</th>
                         <th scope="col">Машины</th>
+                        <th scope="col">Действия</th>
                     </tr>
                     </thead>
                     <tbody id="enterpriseTableBody"></tbody>
@@ -49,6 +51,48 @@
         emptyMessage.classList.remove("d-none");
     };
 
+    const buildUpdatePayload = (enterprise, timeZone) => ({
+        id: enterprise.id,
+        name: enterprise.name,
+        country: enterprise.country,
+        productionCapacity: enterprise.productionCapacity,
+        timeZone: timeZone
+    });
+
+    const updateEnterprise = async (enterprise, timeZoneInput, saveButton) => {
+        const accessToken = localStorage.getItem("accessToken");
+
+        if (!accessToken) {
+            showError("Нет токена доступа. Войдите заново.");
+            return;
+        }
+
+        const timeZone = timeZoneInput.value.trim();
+        const payload = buildUpdatePayload(enterprise, timeZone);
+
+        saveButton.disabled = true;
+
+        const response = await fetch("/api/enterprises/" + enterprise.id + "/", {
+            method: "PUT",
+            headers: {
+                "Authorization": "Bearer " + accessToken,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        saveButton.disabled = false;
+
+        if (!response.ok) {
+            showError("Не удалось обновить предприятие.");
+            return;
+        }
+
+        const updatedEnterprise = await response.json();
+        enterprise.timeZone = updatedEnterprise.timeZone;
+        timeZoneInput.value = updatedEnterprise.timeZone || "";
+    };
+
     const renderRow = (enterprise) => {
         const row = document.createElement("tr");
 
@@ -64,6 +108,14 @@
         const capacityCell = document.createElement("td");
         capacityCell.textContent = enterprise.productionCapacity ?? "-";
 
+        const timeZoneCell = document.createElement("td");
+        const timeZoneInput = document.createElement("input");
+        timeZoneInput.type = "text";
+        timeZoneInput.className = "form-control form-control-sm";
+        timeZoneInput.placeholder = "+03:00";
+        timeZoneInput.value = enterprise.timeZone || "";
+        timeZoneCell.appendChild(timeZoneInput);
+
         const vehiclesCell = document.createElement("td");
 
         if (enterprise.id) {
@@ -75,11 +127,26 @@
             vehiclesCell.textContent = "-";
         }
 
+        const actionsCell = document.createElement("td");
+        const saveButton = document.createElement("button");
+        saveButton.type = "button";
+        saveButton.className = "btn btn-sm btn-primary";
+        saveButton.textContent = "Сохранить";
+        saveButton.addEventListener("click", () => updateEnterprise(enterprise, timeZoneInput, saveButton));
+        actionsCell.appendChild(saveButton);
+
+        if (!enterprise.id) {
+            timeZoneInput.disabled = true;
+            saveButton.disabled = true;
+        }
+
         row.appendChild(idCell);
         row.appendChild(nameCell);
         row.appendChild(countryCell);
         row.appendChild(capacityCell);
+        row.appendChild(timeZoneCell);
         row.appendChild(vehiclesCell);
+        row.appendChild(actionsCell);
 
         tableBody.appendChild(row);
     };

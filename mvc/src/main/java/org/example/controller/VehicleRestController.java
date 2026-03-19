@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.brand.BrandRestDto;
 import org.example.dto.vehicle.VehicleCreateRestDto;
 import org.example.dto.vehicle.VehicleRestDto;
+import org.example.dto.vehicle.VehicleUpdateRestDto;
 import org.example.service.BrandService;
 import org.example.service.VehicleService;
 import org.springframework.data.domain.Page;
@@ -66,7 +67,7 @@ public class VehicleRestController {
 
     @PutMapping("/vehicle/{id}/")
     public VehicleRestDto updateVehicle(@PathVariable UUID id,
-                                        @RequestBody VehicleRestDto dto,
+                                        @RequestBody VehicleUpdateRestDto dto,
                                         @AuthenticationPrincipal UserDetails userDetails) {
         return vehicleService.update(id, dto, userDetails.getUsername());
     }

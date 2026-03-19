@@ -40,6 +40,10 @@
                     <label class="form-label mb-1" for="createDriver">Активный водитель</label>
                     <select id="createDriver" class="form-select form-select-sm"></select>
                 </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label mb-1" for="createProductionDate">Дата выпуска</label>
+                    <input id="createProductionDate" class="form-control form-control-sm" type="datetime-local" step="1">
+                </div>
                 <div class="col-12">
                     <button class="btn btn-primary btn-sm" type="submit">Создать</button>
                 </div>
@@ -59,6 +63,7 @@
                         <th scope="col">Страна</th>
                         <th scope="col">Бренд</th>
                         <th scope="col">Активный водитель</th>
+                        <th scope="col">Дата выпуска</th>
                         <th scope="col">Действия</th>
                     </tr>
                     </thead>
@@ -88,6 +93,7 @@
     const createCountry = document.getElementById("createCountry");
     const createBrand = document.getElementById("createBrand");
     const createDriver = document.getElementById("createDriver");
+    const createProductionDate = document.getElementById("createProductionDate");
 
     const pageSize = 20;
     let currentPage = 0;
@@ -132,6 +138,97 @@
 
     const parseDecimal = (value) => {
         return value === "" ? null : value;
+    };
+
+    const padNumber = (value) => {
+        return String(value).padStart(2, "0");
+    };
+
+    const getLocalOffset = (date) => {
+        const totalMinutes = -date.getTimezoneOffset();
+        const sign = totalMinutes >= 0 ? "+" : "-";
+        const absMinutes = Math.abs(totalMinutes);
+        const hours = Math.floor(absMinutes / 60);
+        const minutes = absMinutes % 60;
+        return sign + padNumber(hours) + ":" + padNumber(minutes);
+    };
+
+    const formatDateTimeWithOffset = (date) => {
+        const year = date.getFullYear();
+        const month = padNumber(date.getMonth() + 1);
+        const day = padNumber(date.getDate());
+        const hours = padNumber(date.getHours());
+        const minutes = padNumber(date.getMinutes());
+        const seconds = padNumber(date.getSeconds());
+        const offset = getLocalOffset(date);
+        return year + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":" + seconds + offset;
+    };
+
+    const parseLocalDateTimeInput = (value) => {
+        if (!value) {
+            return null;
+        }
+
+        const [datePart, timePart] = value.split("T");
+        if (!datePart || !timePart) {
+            return null;
+        }
+
+        const [year, month, day] = datePart.split("-").map((item) => parseInt(item, 10));
+        if (!year || !month || !day) {
+            return null;
+        }
+
+        const timeParts = timePart.split(":");
+        const hour = parseInt(timeParts[0], 10);
+        const minute = parseInt(timeParts[1], 10);
+        const second = timeParts.length > 2 ? parseInt(timeParts[2], 10) : 0;
+
+        const date = new Date(year, month - 1, day, hour || 0, minute || 0, Number.isNaN(second) ? 0 : second);
+        if (Number.isNaN(date.getTime())) {
+            return null;
+        }
+
+        return formatDateTimeWithOffset(date);
+    };
+
+    const toLocalDateTimeInputValue = (isoString) => {
+        if (!isoString) {
+            return "";
+        }
+
+        const date = new Date(isoString);
+        if (Number.isNaN(date.getTime())) {
+            return "";
+        }
+
+        const year = date.getFullYear();
+        const month = padNumber(date.getMonth() + 1);
+        const day = padNumber(date.getDate());
+        const hours = padNumber(date.getHours());
+        const minutes = padNumber(date.getMinutes());
+        const seconds = padNumber(date.getSeconds());
+        return year + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":" + seconds;
+    };
+
+    const formatDateTimeForDisplay = (isoString) => {
+        if (!isoString) {
+            return "-";
+        }
+
+        const date = new Date(isoString);
+        if (Number.isNaN(date.getTime())) {
+            return "-";
+        }
+
+        return new Intl.DateTimeFormat("ru-RU", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+        }).format(date);
     };
 
     const setSelectOptions = (select, items, emptyLabel) => {
@@ -190,6 +287,7 @@
         row.appendChild(createTextCell(vehicle.country || "-"));
         row.appendChild(createTextCell(vehicle.brandName || "-"));
         row.appendChild(createTextCell(vehicle.activeDriverName || "-"));
+        row.appendChild(createTextCell(formatDateTimeForDisplay(vehicle.productionDate)));
 
         const actionCell = document.createElement("td");
 
@@ -233,6 +331,11 @@
 
         const brandSelect = createBrandSelect(vehicle.brandId);
         const driverSelect = createDriverSelect(vehicle.activeDriverId);
+        const productionDateInput = document.createElement("input");
+        productionDateInput.type = "datetime-local";
+        productionDateInput.step = "1";
+        productionDateInput.className = "form-control form-control-sm";
+        productionDateInput.value = toLocalDateTimeInputValue(vehicle.productionDate);
 
         const mileageCell = document.createElement("td");
         mileageCell.appendChild(mileageInput);
@@ -249,12 +352,16 @@
         const driverCell = document.createElement("td");
         driverCell.appendChild(driverSelect);
 
+        const productionDateCell = document.createElement("td");
+        productionDateCell.appendChild(productionDateInput);
+
         row.appendChild(createTextCell(vehicle.id || "-"));
         row.appendChild(mileageCell);
         row.appendChild(priceCell);
         row.appendChild(countryCell);
         row.appendChild(brandCell);
         row.appendChild(driverCell);
+        row.appendChild(productionDateCell);
 
         const actionCell = document.createElement("td");
 
@@ -268,7 +375,8 @@
                 price: parseDecimal(priceInput.value),
                 country: normalizeText(countryInput.value),
                 brandId: brandSelect.value || null,
-                activeDriverId: driverSelect.value || null
+                activeDriverId: driverSelect.value || null,
+                productionDate: parseLocalDateTimeInput(productionDateInput.value)
             };
 
             const updated = await updateVehicle(vehicle.id, payload);
@@ -511,7 +619,8 @@
             country: normalizeText(createCountry.value),
             brandId: createBrand.value || null,
             enterpriseId: enterpriseId,
-            activeDriverId: createDriver.value || null
+            activeDriverId: createDriver.value || null,
+            productionDate: parseLocalDateTimeInput(createProductionDate.value)
         };
 
         const created = await createVehicle(payload);
@@ -524,6 +633,7 @@
         createCountry.value = "";
         createBrand.value = "";
         createDriver.value = "";
+        createProductionDate.value = "";
 
         loadVehicles(enterpriseId, currentPage);
     });

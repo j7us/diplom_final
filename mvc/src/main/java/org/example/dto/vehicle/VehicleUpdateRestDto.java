@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class VehicleRestDto {
+public class VehicleUpdateRestDto {
     private UUID id;
     private Integer milleage;
     private BigDecimal price;

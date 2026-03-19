@@ -16,6 +16,7 @@ public class EnterpriseRestDto {
     private String name;
     private String country;
     private Integer productionCapacity;
+    private String timeZone;
     private List<UUID> driverIds;
     private List<UUID> vehicleIds;
 }
