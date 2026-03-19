@@ -16,6 +16,37 @@
     <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
     <div id="emptyMessage" class="alert alert-info d-none" role="alert">Нет машин для отображения.</div>
 
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <h2 class="h6 mb-3">Создать автомобиль</h2>
+            <form id="createVehicleForm" class="row g-2">
+                <div class="col-12 col-md-2">
+                    <label class="form-label mb-1" for="createMileage">Пробег</label>
+                    <input id="createMileage" class="form-control form-control-sm" type="number" min="0">
+                </div>
+                <div class="col-12 col-md-2">
+                    <label class="form-label mb-1" for="createPrice">Цена</label>
+                    <input id="createPrice" class="form-control form-control-sm" type="number" min="0" step="0.01">
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label mb-1" for="createCountry">Страна</label>
+                    <input id="createCountry" class="form-control form-control-sm" type="text">
+                </div>
+                <div class="col-12 col-md-2">
+                    <label class="form-label mb-1" for="createBrand">Бренд</label>
+                    <select id="createBrand" class="form-select form-select-sm"></select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label mb-1" for="createDriver">Активный водитель</label>
+                    <select id="createDriver" class="form-select form-select-sm"></select>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-primary btn-sm" type="submit">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card shadow-sm">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -28,6 +59,7 @@
                         <th scope="col">Страна</th>
                         <th scope="col">Бренд</th>
                         <th scope="col">Активный водитель</th>
+                        <th scope="col">Действия</th>
                     </tr>
                     </thead>
                     <tbody id="vehicleTableBody"></tbody>
@@ -50,10 +82,18 @@
     const prevButton = document.getElementById("prevPage");
     const nextButton = document.getElementById("nextPage");
     const pageInfo = document.getElementById("pageInfo");
+    const createForm = document.getElementById("createVehicleForm");
+    const createMileage = document.getElementById("createMileage");
+    const createPrice = document.getElementById("createPrice");
+    const createCountry = document.getElementById("createCountry");
+    const createBrand = document.getElementById("createBrand");
+    const createDriver = document.getElementById("createDriver");
 
     const pageSize = 20;
     let currentPage = 0;
     let totalPages = 0;
+    let brands = [];
+    let drivers = [];
 
     const showError = (message) => {
         errorMessage.textContent = message;
@@ -74,6 +114,42 @@
         tableBody.innerHTML = "";
     };
 
+    const getAccessToken = () => localStorage.getItem("accessToken");
+
+    const normalizeText = (value) => {
+        const trimmed = value.trim();
+        return trimmed === "" ? null : trimmed;
+    };
+
+    const parseInteger = (value) => {
+        if (value === "") {
+            return null;
+        }
+
+        const parsedValue = parseInt(value, 10);
+        return Number.isNaN(parsedValue) ? null : parsedValue;
+    };
+
+    const parseDecimal = (value) => {
+        return value === "" ? null : value;
+    };
+
+    const setSelectOptions = (select, items, emptyLabel) => {
+        select.innerHTML = "";
+
+        const emptyOption = document.createElement("option");
+        emptyOption.value = "";
+        emptyOption.textContent = emptyLabel;
+        select.appendChild(emptyOption);
+
+        items.forEach((item) => {
+            const option = document.createElement("option");
+            option.value = item.id;
+            option.textContent = item.name;
+            select.appendChild(option);
+        });
+    };
+
     const updatePagination = () => {
         const totalLabel = totalPages === 0 ? 0 : totalPages;
         const currentLabel = totalPages === 0 ? 0 : currentPage + 1;
@@ -83,42 +159,206 @@
         nextButton.disabled = totalPages === 0 || currentPage >= totalPages - 1;
     };
 
-    const renderRow = (vehicle) => {
-        const row = document.createElement("tr");
+    const createTextCell = (value) => {
+        const cell = document.createElement("td");
+        cell.textContent = value ?? "-";
+        return cell;
+    };
 
-        const idCell = document.createElement("td");
-        idCell.textContent = vehicle.id || "-";
+    const createBrandSelect = (selectedId) => {
+        const select = document.createElement("select");
+        select.className = "form-select form-select-sm";
+        setSelectOptions(select, brands, "Нет бренда");
+        select.value = selectedId ?? "";
+        return select;
+    };
+
+    const createDriverSelect = (selectedId) => {
+        const select = document.createElement("select");
+        select.className = "form-select form-select-sm";
+        setSelectOptions(select, drivers, "Нет водителя");
+        select.value = selectedId ?? "";
+        return select;
+    };
+
+    const fillRowWithView = (row, vehicle) => {
+        row.innerHTML = "";
+
+        row.appendChild(createTextCell(vehicle.id || "-"));
+        row.appendChild(createTextCell(vehicle.milleage ?? "-"));
+        row.appendChild(createTextCell(vehicle.price ?? "-"));
+        row.appendChild(createTextCell(vehicle.country || "-"));
+        row.appendChild(createTextCell(vehicle.brandName || "-"));
+        row.appendChild(createTextCell(vehicle.activeDriverName || "-"));
+
+        const actionCell = document.createElement("td");
+
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.className = "btn btn-outline-primary btn-sm me-2";
+        editButton.textContent = "Редактировать";
+        editButton.addEventListener("click", () => fillRowWithEdit(row, vehicle));
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "btn btn-outline-danger btn-sm";
+        deleteButton.textContent = "Удалить";
+        deleteButton.addEventListener("click", () => handleDelete(vehicle.id));
+
+        actionCell.appendChild(editButton);
+        actionCell.appendChild(deleteButton);
+        row.appendChild(actionCell);
+    };
+
+    const fillRowWithEdit = (row, vehicle) => {
+        row.innerHTML = "";
+
+        const mileageInput = document.createElement("input");
+        mileageInput.type = "number";
+        mileageInput.min = "0";
+        mileageInput.className = "form-control form-control-sm";
+        mileageInput.value = vehicle.milleage ?? "";
+
+        const priceInput = document.createElement("input");
+        priceInput.type = "number";
+        priceInput.min = "0";
+        priceInput.step = "0.01";
+        priceInput.className = "form-control form-control-sm";
+        priceInput.value = vehicle.price ?? "";
+
+        const countryInput = document.createElement("input");
+        countryInput.type = "text";
+        countryInput.className = "form-control form-control-sm";
+        countryInput.value = vehicle.country ?? "";
+
+        const brandSelect = createBrandSelect(vehicle.brandId);
+        const driverSelect = createDriverSelect(vehicle.activeDriverId);
 
         const mileageCell = document.createElement("td");
-        mileageCell.textContent = vehicle.milleage ?? "-";
+        mileageCell.appendChild(mileageInput);
 
         const priceCell = document.createElement("td");
-        priceCell.textContent = vehicle.price ?? "-";
+        priceCell.appendChild(priceInput);
 
         const countryCell = document.createElement("td");
-        countryCell.textContent = vehicle.country || "-";
+        countryCell.appendChild(countryInput);
 
         const brandCell = document.createElement("td");
-        brandCell.textContent = vehicle.brandName || "-";
+        brandCell.appendChild(brandSelect);
 
         const driverCell = document.createElement("td");
-        driverCell.textContent = vehicle.activeDriverName || "-";
+        driverCell.appendChild(driverSelect);
 
-        row.appendChild(idCell);
+        row.appendChild(createTextCell(vehicle.id || "-"));
         row.appendChild(mileageCell);
         row.appendChild(priceCell);
         row.appendChild(countryCell);
         row.appendChild(brandCell);
         row.appendChild(driverCell);
 
+        const actionCell = document.createElement("td");
+
+        const saveButton = document.createElement("button");
+        saveButton.type = "button";
+        saveButton.className = "btn btn-primary btn-sm me-2";
+        saveButton.textContent = "Сохранить";
+        saveButton.addEventListener("click", async () => {
+            const payload = {
+                milleage: parseInteger(mileageInput.value),
+                price: parseDecimal(priceInput.value),
+                country: normalizeText(countryInput.value),
+                brandId: brandSelect.value || null,
+                activeDriverId: driverSelect.value || null
+            };
+
+            const updated = await updateVehicle(vehicle.id, payload);
+            if (!updated) {
+                return;
+            }
+
+            loadVehicles(enterpriseId, currentPage);
+        });
+
+        const cancelButton = document.createElement("button");
+        cancelButton.type = "button";
+        cancelButton.className = "btn btn-outline-secondary btn-sm";
+        cancelButton.textContent = "Отмена";
+        cancelButton.addEventListener("click", () => fillRowWithView(row, vehicle));
+
+        actionCell.appendChild(saveButton);
+        actionCell.appendChild(cancelButton);
+        row.appendChild(actionCell);
+    };
+
+    const renderRow = (vehicle) => {
+        const row = document.createElement("tr");
+        fillRowWithView(row, vehicle);
         tableBody.appendChild(row);
+    };
+
+    const loadBrands = async () => {
+        const accessToken = getAccessToken();
+
+        if (!accessToken) {
+            showError("Нет токена доступа. Войдите заново.");
+            return;
+        }
+
+        const response = await fetch("/api/brands", {
+            headers: {
+                "Authorization": "Bearer " + accessToken
+            }
+        });
+
+        if (!response.ok) {
+            showError("Не удалось получить список брендов.");
+            return;
+        }
+
+        brands = await response.json();
+        if (!Array.isArray(brands)) {
+            showError("Некорректный ответ сервера.");
+            brands = [];
+            return;
+        }
+
+        setSelectOptions(createBrand, brands, "Нет бренда");
+    };
+
+    const loadDrivers = async (enterpriseId) => {
+        const accessToken = getAccessToken();
+
+        if (!accessToken) {
+            showError("Нет токена доступа. Войдите заново.");
+            return;
+        }
+
+        const response = await fetch("/api/drivers?enterpriseId=" + enterpriseId, {
+            headers: {
+                "Authorization": "Bearer " + accessToken
+            }
+        });
+
+        if (!response.ok) {
+            showError("Не удалось получить список водителей.");
+            return;
+        }
+
+        drivers = await response.json();
+        if (!Array.isArray(drivers)) {
+            showError("Некорректный ответ сервера.");
+            drivers = [];
+            return;
+        }
+
+        setSelectOptions(createDriver, drivers, "Нет водителя");
     };
 
     const loadVehicles = async (enterpriseId, page) => {
         clearMessages();
         clearTable();
 
-        const accessToken = localStorage.getItem("accessToken");
+        const accessToken = getAccessToken();
 
         if (!accessToken) {
             showError("Нет токена доступа. Войдите заново.");
@@ -163,6 +403,84 @@
         updatePagination();
     };
 
+    const createVehicle = async (payload) => {
+        const accessToken = getAccessToken();
+
+        if (!accessToken) {
+            showError("Нет токена доступа. Войдите заново.");
+            return false;
+        }
+
+        const response = await fetch("/api/vehicles", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + accessToken,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            showError("Не удалось создать автомобиль.");
+            return false;
+        }
+
+        return true;
+    };
+
+    const updateVehicle = async (id, payload) => {
+        const accessToken = getAccessToken();
+
+        if (!accessToken) {
+            showError("Нет токена доступа. Войдите заново.");
+            return false;
+        }
+
+        const response = await fetch("/api/vehicle/" + id + "/", {
+            method: "PUT",
+            headers: {
+                "Authorization": "Bearer " + accessToken,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            showError("Не удалось обновить автомобиль.");
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleDelete = async (id) => {
+        const confirmed = window.confirm("Удалить автомобиль?");
+        if (!confirmed) {
+            return;
+        }
+
+        const accessToken = getAccessToken();
+
+        if (!accessToken) {
+            showError("Нет токена доступа. Войдите заново.");
+            return;
+        }
+
+        const response = await fetch("/api/vehicle/" + id + "/", {
+            method: "DELETE",
+            headers: {
+                "Authorization": "Bearer " + accessToken
+            }
+        });
+
+        if (!response.ok) {
+            showError("Не удалось удалить автомобиль.");
+            return;
+        }
+
+        loadVehicles(enterpriseId, currentPage);
+    };
+
     const updateUrl = (enterpriseId, page) => {
         const url = new URL(window.location.href);
         url.searchParams.set("enterpriseId", enterpriseId);
@@ -179,8 +497,36 @@
         showError("Не указан идентификатор предприятия.");
     } else {
         updateUrl(enterpriseId, initialPage);
+        loadBrands();
+        loadDrivers(enterpriseId);
         loadVehicles(enterpriseId, initialPage);
     }
+
+    createForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const payload = {
+            milleage: parseInteger(createMileage.value),
+            price: parseDecimal(createPrice.value),
+            country: normalizeText(createCountry.value),
+            brandId: createBrand.value || null,
+            enterpriseId: enterpriseId,
+            activeDriverId: createDriver.value || null
+        };
+
+        const created = await createVehicle(payload);
+        if (!created) {
+            return;
+        }
+
+        createMileage.value = "";
+        createPrice.value = "";
+        createCountry.value = "";
+        createBrand.value = "";
+        createDriver.value = "";
+
+        loadVehicles(enterpriseId, currentPage);
+    });
 
     prevButton.addEventListener("click", () => {
         if (currentPage > 0) {

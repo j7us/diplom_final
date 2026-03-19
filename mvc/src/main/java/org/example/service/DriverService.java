@@ -44,6 +44,21 @@ public class DriverService {
                 .map(driverRestMapper::toDto);
     }
 
+    public List<DriverRestDto> getAllByEnterprise(String username, UUID enterpriseId) {
+        enterpriseService.getEntityByIdAndManagerUsername(enterpriseId, username);
+
+        return driverRepository.findAllByEnterprise_Id(enterpriseId).stream()
+                .map(driverRestMapper::toDto)
+                .toList();
+    }
+
+    public Page<DriverRestDto> getAllByEnterprise(String username, UUID enterpriseId, Pageable pageable) {
+        enterpriseService.getEntityByIdAndManagerUsername(enterpriseId, username);
+
+        return driverRepository.findAllByEnterprise_Id(enterpriseId, pageable)
+                .map(driverRestMapper::toDto);
+    }
+
     public DriverRestDto getById(UUID id, String username) {
         Driver driver = driverRepository.findById(id).orElseThrow();
 

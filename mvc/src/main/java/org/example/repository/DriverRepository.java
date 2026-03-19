@@ -11,4 +11,8 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
     List<Driver> findAllByEnterprise_IdIn(List<UUID> enterpriseIds);
 
     Page<Driver> findAllByEnterprise_IdIn(List<UUID> enterpriseIds, Pageable pageable);
+
+    List<Driver> findAllByEnterprise_Id(UUID enterpriseId);
+
+    Page<Driver> findAllByEnterprise_Id(UUID enterpriseId, Pageable pageable);
 }

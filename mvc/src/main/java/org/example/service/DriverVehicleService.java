@@ -38,6 +38,17 @@ public class DriverVehicleService {
         driverVehicle.setActive(true);
     }
 
+    @Transactional
+    public void deactivateDrivers(Vehicle vehicle) {
+        List<DriverVehicle> driversForVehicle = vehicle.getDriverVehicles();
+
+        if (CollectionUtils.isEmpty(driversForVehicle)) {
+            return;
+        }
+
+        driversForVehicle.forEach(driverVehicle -> driverVehicle.setActive(false));
+    }
+
     private DriverVehicle findDriverVehicle(List<DriverVehicle> driversForVehicle, UUID driverId) {
         return driversForVehicle.stream()
                 .filter(driverVehicle -> driverVehicle.getDriver().getId().equals(driverId))

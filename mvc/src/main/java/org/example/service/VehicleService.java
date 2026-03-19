@@ -136,10 +136,12 @@ public class VehicleService {
         enterpriseService.getByIdAndManagerUsername(vehicle.getEnterprise().getId(), username);
 
         vehicleRestMapper.updateEntity(dto, vehicle);
-        vehicle.setBrand(brandService.getEntityById(dto.getBrandId()));
+        vehicle.setBrand(resolveBrand(dto.getBrandId()));
 
         if (dto.getActiveDriverId() != null) {
             driverVehicleService.setActiveDriver(vehicle, dto.getActiveDriverId());
+        } else {
+            driverVehicleService.deactivateDrivers(vehicle);
         }
 
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
