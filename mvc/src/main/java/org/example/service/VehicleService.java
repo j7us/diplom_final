@@ -60,7 +60,7 @@ public class VehicleService {
     }
 
     public Page<VehicleRestDto> getAllByEnterprise(String username, UUID enterpriseId, Pageable pageable) {
-        Enterprise enterprise = enterpriseService.getEntityByIdAndManagerUsername(enterpriseId, username);
+        enterpriseService.getEntityByIdAndManagerUsername(enterpriseId, username);
 
         return vehicleRepository.findAllByEnterprise_Id(enterpriseId, pageable)
                 .map(vehicleRestMapper::toDto);
