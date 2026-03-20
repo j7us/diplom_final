@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.config.GraphHopperProp;
 import org.example.dto.graphhopper.GraphHopperPointDto;
 import org.example.dto.vehiclelocation.VehicleLocationCreateRestDto;
-import org.example.dto.vehiclelocation.VehicleLocationJsonRestDto;
 import org.example.service.GraphHopperRouteService;
 import org.example.service.VehicleLocationService;
 import org.springframework.shell.command.annotation.Command;

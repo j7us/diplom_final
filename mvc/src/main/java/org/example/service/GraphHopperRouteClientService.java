@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.config.GraphHopperProp;
 import org.example.dto.graphhopper.GraphHopperPointDto;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
