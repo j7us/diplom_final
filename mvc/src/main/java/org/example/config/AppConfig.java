@@ -16,11 +16,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestClient;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
-@EnableConfigurationProperties(value = {SecurityProp.class})
+@EnableConfigurationProperties(value = {SecurityProp.class, GraphHopperProp.class})
 @RequiredArgsConstructor
 public class AppConfig {
     private final JwtFilter jwtFilter;
@@ -60,5 +61,10 @@ public class AppConfig {
     @Bean
     public JtsModule jtsModule() {
         return new JtsModule();
+    }
+
+    @Bean
+    public RestClient restClient(RestClient.Builder restClientBuilder) {
+        return restClientBuilder.build();
     }
 }

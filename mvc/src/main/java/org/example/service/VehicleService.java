@@ -86,6 +86,10 @@ public class VehicleService {
         return vehicle;
     }
 
+    public Vehicle getEntityById(UUID id) {
+        return vehicleRepository.findById(id).orElseThrow();
+    }
+
     @Transactional
     public void createWithoutEnterprise(VehicleDto dto) {
         Vehicle vehicle = vehicleMapper.toEntity(dto);

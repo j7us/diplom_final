@@ -1,6 +1,7 @@
 package org.example.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -38,6 +39,21 @@ public class VehicleLocationService {
 
         return vehicleLocationMapper.toJsonDto(savedLocation);
     }
+
+    @Transactional
+    public VehicleLocationJsonRestDto create(UUID vehicleId,
+                                             VehicleLocationCreateRestDto dto) {
+        Vehicle vehicle = vehicleService.getEntityById(vehicleId);
+
+        VehicleLocation location = vehicleLocationMapper.toEntity(dto);
+        location.setId(UUID.randomUUID());
+        location.setVehicle(vehicle);
+
+        VehicleLocation savedLocation = vehicleLocationRepository.save(location);
+
+        return vehicleLocationMapper.toJsonDto(savedLocation);
+    }
+
 
     public List<VehicleLocationJsonRestDto> getAllJson(UUID vehicleId,
                                                        LocalDateTime dateFrom,

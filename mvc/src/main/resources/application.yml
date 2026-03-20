@@ -23,3 +23,11 @@ security:
 logging:
   level:
     org.hibernate.SQL=DEBUG:
+
+graphhopper:
+  api-url: https://graphhopper.com/api/1/route
+  api-key: 14b0e1b6-4e04-40d9-9aba-15c2840fb9ec
+  min-latitude: 37.805051
+  max-latitude: 37.868170
+  min-longitude: 55.913529
+  max-longitude: 55.925741
