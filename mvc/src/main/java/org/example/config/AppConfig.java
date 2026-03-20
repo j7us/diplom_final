@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.controller.filter.JwtFilter;
 import org.example.service.ManagerService;
 import org.example.service.security.ManagerAuthService;
+import org.n52.jackson.datatype.jts.JtsModule;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,5 +55,10 @@ public class AppConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
 
         return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public JtsModule jtsModule() {
+        return new JtsModule();
     }
 }

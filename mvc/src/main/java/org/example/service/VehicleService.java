@@ -78,6 +78,14 @@ public class VehicleService {
         return vehicleRestMapper.toDto(vehicle);
     }
 
+    public Vehicle getEntityByIdAndManagerUsername(UUID id, String username) {
+        Vehicle vehicle = vehicleRepository.findById(id).orElseThrow();
+
+        enterpriseService.getEntityByIdAndManagerUsername(vehicle.getEnterprise().getId(), username);
+
+        return vehicle;
+    }
+
     @Transactional
     public void createWithoutEnterprise(VehicleDto dto) {
         Vehicle vehicle = vehicleMapper.toEntity(dto);

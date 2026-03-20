@@ -13,6 +13,7 @@ target/
 *.ipr
 spring-shell.log
 frontend.md
+points.md
 
 ### Eclipse ###
 .apt_generated
