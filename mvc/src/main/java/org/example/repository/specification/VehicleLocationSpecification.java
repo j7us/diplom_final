@@ -11,7 +11,6 @@ import org.example.entity.Trip;
 import org.example.entity.Vehicle;
 import org.example.entity.VehicleLocation;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.util.CollectionUtils;
 
 public final class VehicleLocationSpecification {
     private VehicleLocationSpecification() {
