@@ -3,6 +3,7 @@ package org.example.map;
 import org.example.dto.vehiclelocation.VehicleLocationCreateRestDto;
 import org.example.dto.vehiclelocation.VehicleLocationGeoJsonRestDto;
 import org.example.dto.vehiclelocation.VehicleLocationJsonRestDto;
+import org.example.dto.trip.TripPointRestDto;
 import org.example.entity.VehicleLocation;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -18,6 +19,10 @@ public interface VehicleLocationMapper {
     VehicleLocationJsonRestDto toJsonDto(VehicleLocation location);
 
     VehicleLocationGeoJsonRestDto toGeoJsonDto(VehicleLocation location);
+
+    @Mapping(target = "latitude", source = "location", qualifiedByName = "mapLatitude")
+    @Mapping(target = "longitude", source = "location", qualifiedByName = "mapLongitude")
+    TripPointRestDto toTripPointDto(VehicleLocation location);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "vehicle", ignore = true)

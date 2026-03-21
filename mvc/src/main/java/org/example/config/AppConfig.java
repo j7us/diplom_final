@@ -21,7 +21,7 @@ import org.springframework.web.client.RestClient;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
-@EnableConfigurationProperties(value = {SecurityProp.class, GraphHopperProp.class})
+@EnableConfigurationProperties(value = {SecurityProp.class, GraphHopperProp.class, GeoapifyProp.class})
 @RequiredArgsConstructor
 public class AppConfig {
     private final JwtFilter jwtFilter;

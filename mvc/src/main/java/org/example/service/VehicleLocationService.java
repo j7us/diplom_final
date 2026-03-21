@@ -1,6 +1,8 @@
 package org.example.service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -79,6 +81,13 @@ public class VehicleLocationService {
                 .stream()
                 .map(vehicleLocationMapper::toGeoJsonDto)
                 .toList();
+    }
+
+    public VehicleLocation getEntityByVehicleIdAndDate(UUID vehicleId, Instant date) {
+        LocalDateTime mappedDate = LocalDateTime.ofInstant(date, ZoneOffset.UTC);
+
+        return vehicleLocationRepository.findByVehicle_IdAndDate(vehicleId, mappedDate)
+                .orElseThrow(() -> new RuntimeException("Не найдена точка автомобиля на дату " + date));
     }
 
     private <T> List<T> getAllPointsAndMap(Function<VehicleLocation, T> locationPointMapper,

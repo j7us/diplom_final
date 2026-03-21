@@ -31,3 +31,9 @@ graphhopper:
   max-latitude: 37.868170
   min-longitude: 55.913529
   max-longitude: 55.925741
+
+geoapify:
+  batch-reverse-url: https://api.geoapify.com/v1/batch/geocode/reverse
+  api-key: 68a0bd463e7345579363fbaea27e8a67
+  poll-delay-millis: 1000
+  max-poll-attempts: 10
