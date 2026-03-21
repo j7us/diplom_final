@@ -4,17 +4,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
-
 import lombok.RequiredArgsConstructor;
 import org.example.dto.vehiclelocation.VehicleLocationCreateRestDto;
 import org.example.dto.vehiclelocation.VehicleLocationGeoJsonRestDto;
 import org.example.dto.vehiclelocation.VehicleLocationJsonRestDto;
+import org.example.entity.Trip;
 import org.example.entity.Vehicle;
 import org.example.entity.VehicleLocation;
 import org.example.map.VehicleLocationMapper;
 import org.example.repository.VehicleLocationRepository;
+import org.example.repository.specification.VehicleLocationSpecification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -66,6 +68,17 @@ public class VehicleLocationService {
                                                              LocalDateTime dateTo,
                                                              String username) {
         return getAllPointsAndMap(vehicleLocationMapper::toGeoJsonDto, vehicleId, dateFrom, dateTo, username);
+    }
+
+    public List<VehicleLocationGeoJsonRestDto> getAllGeoJsonByTrips(UUID vehicleId, List<Trip> trips) {
+        if (CollectionUtils.isEmpty(trips)) {
+            return List.of();
+        }
+
+        return vehicleLocationRepository.findAll(VehicleLocationSpecification.withinAnyTripDateRange(vehicleId, trips))
+                .stream()
+                .map(vehicleLocationMapper::toGeoJsonDto)
+                .toList();
     }
 
     private <T> List<T> getAllPointsAndMap(Function<VehicleLocation, T> locationPointMapper,
