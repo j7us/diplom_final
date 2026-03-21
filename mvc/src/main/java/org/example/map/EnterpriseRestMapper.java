@@ -3,6 +3,7 @@ package org.example.map;
 import java.util.List;
 import java.util.UUID;
 import org.example.dto.EnterpriseRestDto;
+import org.example.dto.enterprise.EnterpriseImport;
 import org.example.entity.Driver;
 import org.example.entity.Enterprise;
 import org.example.entity.Vehicle;
@@ -15,6 +16,11 @@ public interface EnterpriseRestMapper {
     @Mapping(source = "drivers", target = "driverIds")
     @Mapping(source = "vehicles", target = "vehicleIds")
     EnterpriseRestDto toDto(Enterprise enterprise);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "driverIds", ignore = true)
+    @Mapping(target = "vehicleIds", ignore = true)
+    EnterpriseRestDto toRestDto(EnterpriseImport dto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "drivers", ignore = true)
