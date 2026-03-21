@@ -12,7 +12,6 @@ import org.locationtech.jts.geom.Point;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
@@ -97,9 +96,7 @@ public class GeoapifyAddressClientService {
 
     private String extractBatchId(String response) {
         JsonNode rootNode = readJson(response);
-        String id = rootNode.path("id").asText();
-
-        return id;
+        return rootNode.path("id").asText();
     }
 
     private JsonNode readJson(String response) {
