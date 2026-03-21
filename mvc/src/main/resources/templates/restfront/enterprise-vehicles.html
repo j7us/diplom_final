@@ -278,6 +278,14 @@
         return select;
     };
 
+    const createVehicleDetailsUrl = (vehicleId) => {
+        const url = new URL("/view/vehicle-details", window.location.origin);
+        url.searchParams.set("vehicleId", vehicleId);
+        url.searchParams.set("enterpriseId", enterpriseId);
+        url.searchParams.set("page", currentPage);
+        return url.pathname + url.search;
+    };
+
     const fillRowWithView = (row, vehicle) => {
         row.innerHTML = "";
 
@@ -297,6 +305,14 @@
         editButton.textContent = "Редактировать";
         editButton.addEventListener("click", () => fillRowWithEdit(row, vehicle));
 
+        const detailsLink = document.createElement("a");
+        detailsLink.className = "btn btn-outline-secondary btn-sm me-2";
+        detailsLink.textContent = "Поездки";
+        detailsLink.href = vehicle.id ? createVehicleDetailsUrl(vehicle.id) : "#";
+        if (!vehicle.id) {
+            detailsLink.classList.add("disabled");
+        }
+
         const deleteButton = document.createElement("button");
         deleteButton.type = "button";
         deleteButton.className = "btn btn-outline-danger btn-sm";
@@ -304,6 +320,7 @@
         deleteButton.addEventListener("click", () => handleDelete(vehicle.id));
 
         actionCell.appendChild(editButton);
+        actionCell.appendChild(detailsLink);
         actionCell.appendChild(deleteButton);
         row.appendChild(actionCell);
     };

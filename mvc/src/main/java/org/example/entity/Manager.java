@@ -36,7 +36,7 @@ public class Manager implements UserDetails {
     @Column(name = "enabled")
     private Boolean enabled;
 
-    @OneToMany(mappedBy = "manager", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "manager", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<AuthGrantedAuthority> auth = new ArrayList<>();
 
     @ManyToMany(mappedBy = "managers")
