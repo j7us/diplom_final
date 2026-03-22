@@ -47,3 +47,4 @@ report:
   translations:
     trips: Поездки
     locations: Точки маршрута
+    vehicleMileageReport: Пробег автомобиля за период

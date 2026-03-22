@@ -1,9 +1,10 @@
 package org.example.service.report;
 
+import org.example.dto.report.Report;
 import java.util.Map;
 
 public interface ReportBuilder {
     String getBuildedReportType();
 
-    Object buildReport(Map<String, Object> params);
+    Report buildReport(Map<String, Object> params);
 }

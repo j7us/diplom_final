@@ -31,38 +31,47 @@ public class TripService {
                                                                    Instant dateFrom,
                                                                    Instant dateTo,
                                                                    String username) {
-        Vehicle vehicle = vehicleService.getEntityByIdAndManagerUsername(vehicleId, username);
-
-        List<Trip> trips = tripRepository.findAllByVehicle_IdAndDateFromGreaterThanEqualAndDateToLessThanEqual(
-                vehicle.getId(),
-                dateFrom,
-                dateTo);
+        List<Trip> trips = findTripsForVehicle(vehicleId, dateFrom, dateTo, username);
 
         if (CollectionUtils.isEmpty(trips)) {
             return List.of();
         }
 
-        return vehicleLocationService.getAllGeoJsonByTrips(vehicle.getId(), trips);
+        return vehicleLocationService.getAllGeoJsonByTrips(vehicleId, trips);
     }
 
     public List<TripRestDto> getTrips(UUID vehicleId,
                                       Instant dateFrom,
                                       Instant dateTo,
                                       String username) {
-        Vehicle vehicle = vehicleService.getEntityByIdAndManagerUsername(vehicleId, username);
-
-        List<Trip> trips = tripRepository.findAllByVehicle_IdAndDateFromGreaterThanEqualAndDateToLessThanEqual(
-                vehicle.getId(),
-                dateFrom,
-                dateTo);
+        List<Trip> trips = findTripsForVehicle(vehicleId, dateFrom, dateTo, username);
 
         if (CollectionUtils.isEmpty(trips)) {
             return List.of();
         }
 
         return trips.stream()
-                .map(trip -> mapToTripDto(vehicle.getId(), trip))
+                .map(trip -> mapToTripDto(vehicleId, trip))
                 .toList();
+    }
+
+    public List<Trip> getTripEntities(UUID vehicleId,
+                                      Instant dateFrom,
+                                      Instant dateTo,
+                                      String username) {
+        return findTripsForVehicle(vehicleId, dateFrom, dateTo, username);
+    }
+
+    private List<Trip> findTripsForVehicle(UUID vehicleId,
+                                           Instant dateFrom,
+                                           Instant dateTo,
+                                           String username) {
+        Vehicle vehicle = vehicleService.getEntityByIdAndManagerUsername(vehicleId, username);
+
+        return tripRepository.findAllByVehicle_IdAndDateFromGreaterThanEqualAndDateToLessThanEqual(
+                vehicle.getId(),
+                dateFrom,
+                dateTo);
     }
 
     private TripRestDto mapToTripDto(UUID vehicleId, Trip trip) {

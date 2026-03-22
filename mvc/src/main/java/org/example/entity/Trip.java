@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -32,4 +33,6 @@ public class Trip {
 
     @Column(columnDefinition = "timestamp with time zone")
     private Instant dateTo;
+
+    private BigDecimal distance;
 }
