@@ -6,7 +6,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.report.GeneratedReport;
 import org.example.dto.report.ReportType;
-import org.example.service.ReportPdfService;
 import org.example.service.ReportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ReportController {
     private final ReportService reportService;
-    private final ReportPdfService reportPdfService;
 
     @GetMapping("/reports")
     public List<ReportType> getReports() {
