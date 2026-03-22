@@ -1,10 +1,13 @@
 package org.example.service;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
-import org.example.dto.trip.TripRestDto;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.trip.TripRestDto;
 import org.example.dto.vehiclelocation.VehicleLocationGeoJsonRestDto;
 import org.example.entity.Trip;
 import org.example.entity.Vehicle;
@@ -26,6 +29,31 @@ public class TripService {
     private final GeoapifyAddressClientService geoapifyAddressClientService;
     private final TripMapper tripMapper;
     private final VehicleLocationMapper vehicleLocationMapper;
+
+    @Transactional
+    public void createTripWithLocations(UUID vehicleId, String username, List<VehicleLocation> locations) {
+        Vehicle vehicle = vehicleService.getEntityByIdAndManagerUsername(vehicleId, username);
+
+        VehicleLocation startLocation = locations.getFirst();
+        VehicleLocation endLocation = locations.getLast();
+        Instant dateFrom = mapToInstant(startLocation.getDate());
+        Instant dateTo = mapToInstant(endLocation.getDate());
+
+        validateTripOverlap(vehicle.getId(), dateFrom, dateTo);
+
+        locations.forEach(l -> l.setVehicle(vehicle));
+
+        Trip trip = new Trip();
+        trip.setId(UUID.randomUUID());
+        trip.setVehicle(vehicle);
+        trip.setDateFrom(dateFrom);
+        trip.setDateTo(dateTo);
+        trip.setDistance(BigDecimal.ZERO);
+
+        tripRepository.save(trip);
+
+        vehicleLocationService.createAll(locations);
+    }
 
     public List<VehicleLocationGeoJsonRestDto> getVehicleLocations(UUID vehicleId,
                                                                    Instant dateFrom,
@@ -95,5 +123,18 @@ public class TripService {
         }
 
         return addresses.get(index);
+    }
+
+    private Instant mapToInstant(LocalDateTime dateTime) {
+        return dateTime.toInstant(ZoneOffset.UTC);
+    }
+
+    private void validateTripOverlap(UUID vehicleId, Instant dateFrom, Instant dateTo) {
+        if (tripRepository.existsByVehicle_IdAndDateFromLessThanEqualAndDateToGreaterThanEqual(
+                vehicleId,
+                dateTo,
+                dateFrom)) {
+            throw new RuntimeException("Найдена поездка, пересекающаяся с интервалом GPX файла");
+        }
     }
 }

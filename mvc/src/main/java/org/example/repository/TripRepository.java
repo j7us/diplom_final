@@ -10,4 +10,8 @@ public interface TripRepository extends JpaRepository<Trip, UUID> {
     List<Trip> findAllByVehicle_IdAndDateFromGreaterThanEqualAndDateToLessThanEqual(UUID vehicleId,
                                                                                       Instant dateFrom,
                                                                                       Instant dateTo);
+
+    boolean existsByVehicle_IdAndDateFromLessThanEqualAndDateToGreaterThanEqual(UUID vehicleId,
+                                                                                 Instant dateTo,
+                                                                                 Instant dateFrom);
 }

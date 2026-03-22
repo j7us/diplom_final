@@ -90,6 +90,11 @@ public class VehicleLocationService {
                 .orElseThrow(() -> new RuntimeException("Не найдена точка автомобиля на дату " + date));
     }
 
+    @Transactional
+    public List<VehicleLocation> createAll(List<VehicleLocation> locations) {
+        return vehicleLocationRepository.saveAll(locations);
+    }
+
     private <T> List<T> getAllPointsAndMap(Function<VehicleLocation, T> locationPointMapper,
                                            UUID vehicleId,
                                            LocalDateTime dateFrom,
