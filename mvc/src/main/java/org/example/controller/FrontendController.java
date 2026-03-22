@@ -25,4 +25,9 @@ public class FrontendController {
     public String vehicleDetailsPage() {
         return "restfront/vehicle-details";
     }
+
+    @GetMapping("/view/reports")
+    public String reportsPage() {
+        return "restfront/reports";
+    }
 }

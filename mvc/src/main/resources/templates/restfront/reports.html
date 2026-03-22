@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Отчеты</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Отчеты</h1>
+        <a class="btn btn-sm btn-outline-secondary" href="/view/enterprises">К предприятиям</a>
+    </div>
+
+    <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+    <div id="emptyMessage" class="alert alert-info d-none" role="alert">По выбранным параметрам нет данных.</div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form id="reportForm" class="row g-3">
+                <div class="col-12 col-md-6">
+                    <label for="reportType" class="form-label">Тип отчета</label>
+                    <select id="reportType" class="form-select" required></select>
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <label for="dateFrom" class="form-label">Дата с</label>
+                    <input id="dateFrom" type="date" class="form-control" required>
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <label for="dateTo" class="form-label">Дата по</label>
+                    <input id="dateTo" type="date" class="form-control" required>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label for="intervalType" class="form-label">Интервал</label>
+                    <select id="intervalType" class="form-select" required>
+                        <option value="day">День</option>
+                        <option value="month">Месяц</option>
+                        <option value="year">Год</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4 d-none" id="vehicleGroup">
+                    <label for="vehicleId" class="form-label">Автомобиль</label>
+                    <select id="vehicleId" class="form-select"></select>
+                </div>
+
+                <div class="col-12 col-md-4 d-none" id="enterpriseGroup">
+                    <label for="enterpriseId" class="form-label">Предприятие</label>
+                    <select id="enterpriseId" class="form-select"></select>
+                </div>
+
+                <div class="col-12">
+                    <button id="generateButton" type="submit" class="btn btn-primary">Сгенерировать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="resultCard" class="card shadow-sm d-none">
+        <div class="card-body">
+            <h2 id="reportTitle" class="h5"></h2>
+            <div id="reportPeriod" class="text-muted mb-3"></div>
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">Интервал</th>
+                        <th scope="col" id="valueHeader"></th>
+                    </tr>
+                    </thead>
+                    <tbody id="resultTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const REPORT_TYPE_MILEAGE = "vehicleMileageReport";
+    const REPORT_TYPE_PRODUCTION = "vehicleProductionReport";
+
+    const errorMessage = document.getElementById("errorMessage");
+    const emptyMessage = document.getElementById("emptyMessage");
+    const reportForm = document.getElementById("reportForm");
+    const reportTypeSelect = document.getElementById("reportType");
+    const dateFromInput = document.getElementById("dateFrom");
+    const dateToInput = document.getElementById("dateTo");
+    const intervalTypeSelect = document.getElementById("intervalType");
+    const vehicleGroup = document.getElementById("vehicleGroup");
+    const vehicleSelect = document.getElementById("vehicleId");
+    const enterpriseGroup = document.getElementById("enterpriseGroup");
+    const enterpriseSelect = document.getElementById("enterpriseId");
+    const generateButton = document.getElementById("generateButton");
+    const resultCard = document.getElementById("resultCard");
+    const reportTitle = document.getElementById("reportTitle");
+    const reportPeriod = document.getElementById("reportPeriod");
+    const valueHeader = document.getElementById("valueHeader");
+    const resultTableBody = document.getElementById("resultTableBody");
+
+    const showError = (message) => {
+        errorMessage.textContent = message;
+        errorMessage.classList.remove("d-none");
+    };
+
+    const clearError = () => {
+        errorMessage.classList.add("d-none");
+        errorMessage.textContent = "";
+    };
+
+    const showEmpty = () => {
+        emptyMessage.classList.remove("d-none");
+    };
+
+    const clearEmpty = () => {
+        emptyMessage.classList.add("d-none");
+    };
+
+    const getAccessToken = () => {
+        return localStorage.getItem("accessToken");
+    };
+
+    const createAuthHeaders = (contentType) => {
+        const accessToken = getAccessToken();
+
+        if (!accessToken) {
+            throw new Error("Нет токена доступа. Войдите заново.");
+        }
+
+        const headers = {
+            "Authorization": "Bearer " + accessToken
+        };
+
+        if (contentType) {
+            headers["Content-Type"] = contentType;
+        }
+
+        return headers;
+    };
+
+    const fillSelect = (selectElement, items, getValue, getLabel, placeholder) => {
+        selectElement.innerHTML = "";
+
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = placeholder;
+        selectElement.appendChild(defaultOption);
+
+        items.forEach((item) => {
+            const option = document.createElement("option");
+            option.value = getValue(item);
+            option.textContent = getLabel(item);
+            selectElement.appendChild(option);
+        });
+    };
+
+    const toStartOfDayUtc = (dateString) => {
+        return dateString + "T00:00:00Z";
+    };
+
+    const toEndOfDayUtc = (dateString) => {
+        return dateString + "T23:59:59Z";
+    };
+
+    const getSelectedReportType = () => {
+        return reportTypeSelect.value;
+    };
+
+    const updateSpecificSelectors = () => {
+        const reportType = getSelectedReportType();
+        const mileageSelected = reportType === REPORT_TYPE_MILEAGE;
+        const productionSelected = reportType === REPORT_TYPE_PRODUCTION;
+
+        vehicleGroup.classList.toggle("d-none", !mileageSelected);
+        enterpriseGroup.classList.toggle("d-none", !productionSelected);
+    };
+
+    const getSpecificParam = (reportType) => {
+        if (reportType === REPORT_TYPE_MILEAGE) {
+            return { key: "vehicleId", value: vehicleSelect.value };
+        }
+
+        if (reportType === REPORT_TYPE_PRODUCTION) {
+            return { key: "enterpriseId", value: enterpriseSelect.value };
+        }
+
+        return null;
+    };
+
+    const buildRequestBody = () => {
+        const reportType = getSelectedReportType();
+        const dateFrom = dateFromInput.value;
+        const dateTo = dateToInput.value;
+        const intervalType = intervalTypeSelect.value;
+
+        if (!reportType) {
+            throw new Error("Выберите тип отчета.");
+        }
+
+        if (!dateFrom || !dateTo) {
+            throw new Error("Укажите даты начала и окончания.");
+        }
+
+        if (dateFrom > dateTo) {
+            throw new Error("Дата с не может быть больше даты по.");
+        }
+
+        const specificParam = getSpecificParam(reportType);
+
+        if (!specificParam || !specificParam.value) {
+            throw new Error("Заполните обязательный параметр для выбранного отчета.");
+        }
+
+        return {
+            reportType: reportType,
+            params: {
+                dateFrom: toStartOfDayUtc(dateFrom),
+                dateTo: toEndOfDayUtc(dateTo),
+                intervalType: intervalType,
+                [specificParam.key]: specificParam.value
+            }
+        };
+    };
+
+    const renderResult = (reportType, report) => {
+        const values = Object.entries(report.result || {}).sort(([left], [right]) => left.localeCompare(right));
+
+        resultTableBody.innerHTML = "";
+        clearEmpty();
+
+        reportTitle.textContent = report.name || "Отчет";
+        reportPeriod.textContent = "Период: " + (report.dateFrom || "-") + " - " + (report.dateTo || "-");
+        valueHeader.textContent = reportType === REPORT_TYPE_MILEAGE ? "Дистанция" : "Произведено";
+
+        if (values.length === 0) {
+            showEmpty();
+            resultCard.classList.add("d-none");
+            return;
+        }
+
+        values.forEach(([interval, value]) => {
+            const row = document.createElement("tr");
+            const intervalCell = document.createElement("td");
+            const valueCell = document.createElement("td");
+
+            intervalCell.textContent = interval;
+            valueCell.textContent = String(value);
+
+            row.appendChild(intervalCell);
+            row.appendChild(valueCell);
+            resultTableBody.appendChild(row);
+        });
+
+        resultCard.classList.remove("d-none");
+    };
+
+    const loadReportTypes = async () => {
+        const response = await fetch("/api/reports", {
+            headers: createAuthHeaders()
+        });
+
+        if (!response.ok) {
+            throw new Error("Не удалось получить типы отчетов.");
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+            throw new Error("Некорректный ответ сервера по типам отчетов.");
+        }
+
+        fillSelect(
+            reportTypeSelect,
+            data,
+            (item) => item.originalName,
+            (item) => item.localizedName,
+            "Выберите тип отчета"
+        );
+    };
+
+    const loadEnterprises = async () => {
+        const response = await fetch("/api/enterprises", {
+            headers: createAuthHeaders()
+        });
+
+        if (!response.ok) {
+            throw new Error("Не удалось получить список предприятий.");
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+            throw new Error("Некорректный ответ сервера по предприятиям.");
+        }
+
+        fillSelect(
+            enterpriseSelect,
+            data,
+            (item) => item.id,
+            (item) => (item.name || "Без названия") + " (" + item.id + ")",
+            "Выберите предприятие"
+        );
+    };
+
+    const loadVehicles = async () => {
+        const response = await fetch("/api/vehicles", {
+            headers: createAuthHeaders()
+        });
+
+        if (!response.ok) {
+            throw new Error("Не удалось получить список автомобилей.");
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+            throw new Error("Некорректный ответ сервера по автомобилям.");
+        }
+
+        fillSelect(
+            vehicleSelect,
+            data,
+            (item) => item.id,
+            (item) => (item.id || "-") + (item.brandName ? " | " + item.brandName : ""),
+            "Выберите автомобиль"
+        );
+    };
+
+    const generateReport = async () => {
+        clearError();
+        clearEmpty();
+        resultCard.classList.add("d-none");
+
+        const request = buildRequestBody();
+        const response = await fetch("/api/reports/" + request.reportType, {
+            method: "POST",
+            headers: createAuthHeaders("application/json"),
+            body: JSON.stringify(request.params)
+        });
+
+        if (!response.ok) {
+            throw new Error("Не удалось сформировать отчет.");
+        }
+
+        const report = await response.json();
+        renderResult(request.reportType, report);
+    };
+
+    reportTypeSelect.addEventListener("change", updateSpecificSelectors);
+
+    reportForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        generateButton.disabled = true;
+
+        try {
+            await generateReport();
+        } catch (error) {
+            showError(error.message || "Ошибка при формировании отчета.");
+        } finally {
+            generateButton.disabled = false;
+        }
+    });
+
+    const initialize = async () => {
+        try {
+            await Promise.all([loadReportTypes(), loadEnterprises(), loadVehicles()]);
+            updateSpecificSelectors();
+        } catch (error) {
+            showError(error.message || "Ошибка при загрузке страницы отчетов.");
+        }
+    };
+
+    initialize();
+</script>
+</body>
+</html>
