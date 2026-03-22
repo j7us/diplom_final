@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import org.example.config.ReportProp;
+import org.example.dto.report.ReportType;
 import org.example.service.report.ReportBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,13 +23,13 @@ public class ReportService {
                 .collect(Collectors.toMap(ReportBuilder::getBuildedReportType, Function.identity()));
     }
 
-    public List<String> getAll() {
+    public List<ReportType> getAll() {
         if (CollectionUtils.isEmpty(reportBuildersByType)) {
             return List.of();
         }
 
         return reportBuildersByType.keySet().stream()
-                .map(n -> reportProp.getTranslations().get(n))
+                .map(key -> new ReportType(key, reportProp.getTranslations().getOrDefault(key, key)))
                 .toList();
     }
 }

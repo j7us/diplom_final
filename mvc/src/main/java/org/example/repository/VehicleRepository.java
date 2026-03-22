@@ -1,5 +1,6 @@
 package org.example.repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.example.entity.Vehicle;
@@ -13,4 +14,8 @@ public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
     Page<Vehicle> findAllByEnterprise_IdIn(List<UUID> enterpriseIds, Pageable pageable);
 
     Page<Vehicle> findAllByEnterprise_Id(UUID enterpriseId, Pageable pageable);
+
+    List<Vehicle> findAllByEnterprise_IdAndProductionDateGreaterThanEqualAndProductionDateLessThanEqual(UUID enterpriseId,
+                                                                                                          Instant dateFrom,
+                                                                                                          Instant dateTo);
 }

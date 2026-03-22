@@ -2,6 +2,7 @@ package org.example.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.vehicle.VehicleCreateRestDto;
@@ -88,6 +89,18 @@ public class VehicleService {
 
     public Vehicle getEntityById(UUID id) {
         return vehicleRepository.findById(id).orElseThrow();
+    }
+
+    public List<Vehicle> getEntitiesByEnterpriseAndManagerUsernameAndProductionDateBetween(UUID enterpriseId,
+                                                                                            Instant dateFrom,
+                                                                                            Instant dateTo,
+                                                                                            String username) {
+        Enterprise enterprise = enterpriseService.getEntityByIdAndManagerUsername(enterpriseId, username);
+
+        return vehicleRepository.findAllByEnterprise_IdAndProductionDateGreaterThanEqualAndProductionDateLessThanEqual(
+                enterprise.getId(),
+                dateFrom,
+                dateTo);
     }
 
     @Transactional
