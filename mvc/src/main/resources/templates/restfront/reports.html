@@ -64,6 +64,9 @@
         <div class="card-body">
             <h2 id="reportTitle" class="h5"></h2>
             <div id="reportPeriod" class="text-muted mb-3"></div>
+            <div class="mb-3">
+                <button id="downloadPdfButton" type="button" class="btn btn-outline-primary btn-sm d-none">Скачать PDF</button>
+            </div>
             <div class="table-responsive">
                 <table class="table table-striped mb-0">
                     <thead class="table-light">
@@ -98,8 +101,10 @@
     const resultCard = document.getElementById("resultCard");
     const reportTitle = document.getElementById("reportTitle");
     const reportPeriod = document.getElementById("reportPeriod");
+    const downloadPdfButton = document.getElementById("downloadPdfButton");
     const valueHeader = document.getElementById("valueHeader");
     const resultTableBody = document.getElementById("resultTableBody");
+    let generatedReportId = "";
 
     const showError = (message) => {
         errorMessage.textContent = message;
@@ -333,6 +338,8 @@
         clearError();
         clearEmpty();
         resultCard.classList.add("d-none");
+        downloadPdfButton.classList.add("d-none");
+        generatedReportId = "";
 
         const request = buildRequestBody();
         const response = await fetch("/api/reports/" + request.reportType, {
@@ -345,11 +352,52 @@
             throw new Error("Не удалось сформировать отчет.");
         }
 
-        const report = await response.json();
-        renderResult(request.reportType, report);
+        const generatedReport = await response.json();
+
+        if (!generatedReport || !generatedReport.id || !generatedReport.report) {
+            throw new Error("Некорректный ответ сервера при формировании отчета.");
+        }
+
+        generatedReportId = generatedReport.id;
+        downloadPdfButton.classList.remove("d-none");
+
+        renderResult(request.reportType, generatedReport.report);
+    };
+
+    const downloadReportPdf = async () => {
+        if (!generatedReportId) {
+            throw new Error("Сначала сформируйте отчет.");
+        }
+
+        const response = await fetch("/api/reports/" + generatedReportId + "/pdf", {
+            headers: createAuthHeaders()
+        });
+
+        if (!response.ok) {
+            throw new Error("Не удалось скачать pdf отчет.");
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = "report-" + generatedReportId + ".pdf";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        window.URL.revokeObjectURL(url);
     };
 
     reportTypeSelect.addEventListener("change", updateSpecificSelectors);
+    downloadPdfButton.addEventListener("click", async () => {
+        clearError();
+
+        try {
+            await downloadReportPdf();
+        } catch (error) {
+            showError(error.message || "Ошибка при скачивании pdf отчета.");
+        }
+    });
 
     reportForm.addEventListener("submit", async (event) => {
         event.preventDefault();
