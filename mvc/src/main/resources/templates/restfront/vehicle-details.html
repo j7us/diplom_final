@@ -80,6 +80,21 @@
     </div>
 
     <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <h2 class="h6 mb-3">Импорт GPX</h2>
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-6">
+                    <label class="form-label mb-1" for="gpxFileInput">Файл GPX</label>
+                    <input id="gpxFileInput" class="form-control form-control-sm" type="file" accept=".gpx,application/gpx+xml">
+                </div>
+                <div class="col-12 col-md-6 d-flex gap-2">
+                    <button id="uploadGpxButton" class="btn btn-success btn-sm" type="button">Загрузить GPX</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-striped mb-0">
@@ -115,6 +130,8 @@
     const showRangeTrackButton = document.getElementById("showRangeTrackButton");
     const dateFromInput = document.getElementById("dateFrom");
     const dateToInput = document.getElementById("dateTo");
+    const gpxFileInput = document.getElementById("gpxFileInput");
+    const uploadGpxButton = document.getElementById("uploadGpxButton");
     const backToVehiclesLink = document.getElementById("backToVehiclesLink");
     const vehicleIdValue = document.getElementById("vehicleIdValue");
     const vehicleMilleageValue = document.getElementById("vehicleMilleageValue");
@@ -418,6 +435,36 @@
         return response.json();
     };
 
+    const postGpx = async (file) => {
+        const accessToken = getAccessToken();
+        if (!accessToken) {
+            throw new Error("Нет токена доступа. Войдите заново.");
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/api/vehicles/" + vehicleId + "/trips/gpx", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + accessToken
+            },
+            body: formData
+        });
+
+        if (response.ok) {
+            return;
+        }
+
+        const text = await response.text();
+        const message = text ? text.trim() : "";
+        if (message) {
+            throw new Error(message);
+        }
+
+        throw new Error("Не удалось загрузить GPX файл.");
+    };
+
     const loadVehicle = async () => {
         const vehicle = await getJson("/api/vehicle/" + vehicleId + "/");
 
@@ -477,6 +524,38 @@
         loadTrackByRange(range.dateFrom, range.dateTo);
     };
 
+    const uploadGpx = async () => {
+        clearMessages();
+
+        if (!gpxFileInput.files || gpxFileInput.files.length === 0) {
+            showError("Выберите GPX файл для загрузки.");
+            return;
+        }
+
+        const file = gpxFileInput.files[0];
+        const fileName = file.name ? file.name.toLowerCase() : "";
+        if (!fileName.endsWith(".gpx")) {
+            showError("Разрешены только файлы формата .gpx.");
+            return;
+        }
+
+        uploadGpxButton.disabled = true;
+
+        try {
+            await postGpx(file);
+            gpxFileInput.value = "";
+            await loadTrips();
+
+            if (errorMessage.classList.contains("d-none")) {
+                showInfo("GPX файл успешно загружен.");
+            }
+        } catch (error) {
+            showError(error.message || "Не удалось загрузить GPX файл.");
+        } finally {
+            uploadGpxButton.disabled = false;
+        }
+    };
+
     const init = async () => {
         setBackLink();
         setDefaultDates();
@@ -497,6 +576,7 @@
 
     loadTripsButton.addEventListener("click", loadTrips);
     showRangeTrackButton.addEventListener("click", onShowRangeTrack);
+    uploadGpxButton.addEventListener("click", uploadGpx);
 
     init();
 </script>
