@@ -22,6 +22,8 @@ public interface EnterpriseRestMapper {
     @Mapping(target = "vehicleIds", ignore = true)
     EnterpriseRestDto toRestDto(EnterpriseImport dto);
 
+    EnterpriseImport toImport(Enterprise enterprise);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "drivers", ignore = true)
     @Mapping(target = "vehicles", ignore = true)

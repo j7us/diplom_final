@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.EnterpriseRestDto;
+import org.example.dto.enterprise.EnterpriseExport;
 import org.example.service.EnterpriseJobService;
 import org.example.service.EnterpriseService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,17 +47,37 @@ public class EnterpriseRestController {
     }
 
     @PostMapping(value = "/enterprises/import/csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity importEnterprisesCsv(@RequestParam("file") MultipartFile file,
-                                               @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Void> importEnterprisesCsv(@RequestParam("file") MultipartFile file,
+                                                     @AuthenticationPrincipal UserDetails userDetails) {
         enterpriseJobService.importCsv(file, userDetails.getUsername());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/enterprises/import/json", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity importEnterprisesJson(@RequestParam("file") MultipartFile file,
-                                                @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Void> importEnterprisesJson(@RequestParam("file") MultipartFile file,
+                                                      @AuthenticationPrincipal UserDetails userDetails) {
         enterpriseJobService.importJson(file, userDetails.getUsername());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(value = "/enterprises/export/csv", produces = "text/csv")
+    public ResponseEntity<byte[]> exportEnterprisesCsv(@AuthenticationPrincipal UserDetails userDetails) {
+        EnterpriseExport file = enterpriseJobService.exportCsv(userDetails.getUsername());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFileName() + "\"")
+                .contentType(MediaType.parseMediaType(file.getContentType()))
+                .body(file.getContent());
+    }
+
+    @GetMapping(value = "/enterprises/export/json", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<byte[]> exportEnterprisesJson(@AuthenticationPrincipal UserDetails userDetails) {
+        EnterpriseExport file = enterpriseJobService.exportJson(userDetails.getUsername());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFileName() + "\"")
+                .contentType(MediaType.parseMediaType(file.getContentType()))
+                .body(file.getContent());
     }
 
     @PutMapping("/enterprises/{id}/")
