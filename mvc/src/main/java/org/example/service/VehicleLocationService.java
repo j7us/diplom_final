@@ -91,8 +91,8 @@ public class VehicleLocationService {
     }
 
     @Transactional
-    public List<VehicleLocation> createAll(List<VehicleLocation> locations) {
-        return vehicleLocationRepository.saveAll(locations);
+    public void createAll(List<VehicleLocation> locations) {
+        vehicleLocationRepository.saveAll(locations);
     }
 
     private <T> List<T> getAllPointsAndMap(Function<VehicleLocation, T> locationPointMapper,

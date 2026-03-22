@@ -2,7 +2,6 @@ package org.example.service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
@@ -36,8 +35,8 @@ public class TripService {
 
         VehicleLocation startLocation = locations.getFirst();
         VehicleLocation endLocation = locations.getLast();
-        Instant dateFrom = mapToInstant(startLocation.getDate());
-        Instant dateTo = mapToInstant(endLocation.getDate());
+        Instant dateFrom = startLocation.getDate().toInstant(ZoneOffset.UTC);
+        Instant dateTo = endLocation.getDate().toInstant(ZoneOffset.UTC);
 
         validateTripOverlap(vehicle.getId(), dateFrom, dateTo);
 
@@ -123,10 +122,6 @@ public class TripService {
         }
 
         return addresses.get(index);
-    }
-
-    private Instant mapToInstant(LocalDateTime dateTime) {
-        return dateTime.toInstant(ZoneOffset.UTC);
     }
 
     private void validateTripOverlap(UUID vehicleId, Instant dateFrom, Instant dateTo) {
