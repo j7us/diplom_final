@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.example.client.GraphHopperRouteClient;
 import org.example.dto.graphhopper.GraphHopperPointDto;
 import org.example.dto.graphhopper.GraphHopperRouteResponseDto;
 import org.example.dto.vehiclelocation.VehicleLocationCreateRestDto;
@@ -13,13 +14,13 @@ import org.springframework.util.CollectionUtils;
 
 @Service
 @RequiredArgsConstructor
-public class GraphHopperRouteService {
-    private final GraphHopperRouteClientService graphHopperRouteClientService;
+public class RouteService {
+    private final GraphHopperRouteClient graphHopperRouteClient;
     private final ObjectMapper objectMapper;
 
     public List<VehicleLocationCreateRestDto> buildRoutePoints(GraphHopperPointDto pointFrom,
                                                                GraphHopperPointDto pointTo) {
-        String response = graphHopperRouteClientService.getRoute(pointFrom, pointTo);
+        String response = graphHopperRouteClient.getRoute(pointFrom, pointTo);
         GraphHopperRouteResponseDto routeResponse;
 
         try {

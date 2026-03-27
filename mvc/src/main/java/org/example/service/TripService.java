@@ -6,6 +6,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.example.client.GeoapifyAddressClient;
 import org.example.dto.trip.TripRestDto;
 import org.example.dto.vehiclelocation.VehicleLocationGeoJsonRestDto;
 import org.example.entity.Trip;
@@ -25,7 +26,7 @@ public class TripService {
     private final TripRepository tripRepository;
     private final VehicleService vehicleService;
     private final VehicleLocationService vehicleLocationService;
-    private final GeoapifyAddressClientService geoapifyAddressClientService;
+    private final GeoapifyAddressClient geoapifyAddressClient;
     private final TripMapper tripMapper;
     private final VehicleLocationMapper vehicleLocationMapper;
 
@@ -105,7 +106,7 @@ public class TripService {
         VehicleLocation startLocation = vehicleLocationService.getEntityByVehicleIdAndDate(vehicleId, trip.getDateFrom());
         VehicleLocation endLocation = vehicleLocationService.getEntityByVehicleIdAndDate(vehicleId, trip.getDateTo());
 
-        List<String> addresses = geoapifyAddressClientService.getAddresses(List.of(startLocation, endLocation));
+        List<String> addresses = geoapifyAddressClient.getAddresses(List.of(startLocation, endLocation));
 
         TripRestDto dto = tripMapper.toDto(trip);
         dto.setStartPoint(vehicleLocationMapper.toTripPointDto(startLocation));

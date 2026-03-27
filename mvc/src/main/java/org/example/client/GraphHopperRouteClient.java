@@ -1,17 +1,17 @@
-package org.example.service;
+package org.example.client;
 
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.example.config.GraphHopperProp;
 import org.example.dto.graphhopper.GraphHopperPointDto;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class GraphHopperRouteClientService {
+public class GraphHopperRouteClient {
     private static final String PROFILE = "car";
     private static final String LOCALE = "en";
 

@@ -1,4 +1,4 @@
-package org.example.service;
+package org.example.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,14 +10,14 @@ import org.example.config.GeoapifyProp;
 import org.example.entity.VehicleLocation;
 import org.locationtech.jts.geom.Point;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class GeoapifyAddressClientService {
+public class GeoapifyAddressClient {
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
     private final GeoapifyProp geoapifyProp;

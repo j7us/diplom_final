@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.config.GraphHopperProp;
 import org.example.dto.graphhopper.GraphHopperPointDto;
 import org.example.dto.vehiclelocation.VehicleLocationCreateRestDto;
-import org.example.service.GraphHopperRouteService;
+import org.example.service.RouteService;
 import org.example.service.VehicleLocationService;
 import org.springframework.shell.command.annotation.Command;
 import org.springframework.shell.command.annotation.Option;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class VehicleLocationGeneratorShell {
     private final GraphHopperProp graphHopperProp;
-    private final GraphHopperRouteService graphHopperRouteService;
+    private final RouteService routeService;
     private final VehicleLocationService vehicleLocationService;
 
     @Command(description = "Generate route points for vehicle")
@@ -30,7 +30,7 @@ public class VehicleLocationGeneratorShell {
         GraphHopperPointDto pointFrom = randomPoint();
         GraphHopperPointDto pointTo = randomPoint();
 
-        List<VehicleLocationCreateRestDto> locations = graphHopperRouteService.buildRoutePoints(pointFrom, pointTo);
+        List<VehicleLocationCreateRestDto> locations = routeService.buildRoutePoints(pointFrom, pointTo);
 
         createWithTime(vehicleId, locations);
     }

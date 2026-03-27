@@ -8,6 +8,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class GeoapifyProp {
     private String batchReverseUrl;
     private String apiKey;
-    private Integer pollDelayMillis = 1000;
-    private Integer maxPollAttempts = 10;
+    private Integer pollDelayMillis = 10000;
+    private Integer maxPollAttempts = 3;
 }
