@@ -1,0 +1,32 @@
+name: Deploy to DinD Container
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: Deploy Application
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to DinD server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            pwd
+            ls -la
+            # Проверяем, существует ли директория проекта
+            if [ ! -d "diplom_final" ]; then
+              # Если нет, клонируем репозиторий
+              git clone https://github.com/${{ github.repository }}.git diplom_final
+            fi
+            
+            cd diplom_final && git pull origin master && chmod +x ./scripts/deploy.sh && sh ./scripts/deploy.sh
