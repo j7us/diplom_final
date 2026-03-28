@@ -23,10 +23,8 @@ jobs:
           script: |
             pwd
             ls -la
-            # Проверяем, существует ли директория проекта
             if [ ! -d "diplom_final" ]; then
-              # Если нет, клонируем репозиторий
               git clone https://github.com/${{ github.repository }}.git diplom_final
             fi
             
-            cd diplom_final && git pull origin master && chmod +x ./scripts/deploy.sh && sh ./scripts/deploy.sh
+            cd diplom_final && git fetch origin master && git reset --hard origin/master && chmod +x ./scripts/deploy.sh && sh ./scripts/deploy.sh
