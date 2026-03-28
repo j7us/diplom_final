@@ -41,7 +41,7 @@ geoapify:
   batch-reverse-url: https://api.geoapify.com/v1/batch/geocode/reverse
   api-key: 68a0bd463e7345579363fbaea27e8a67
   poll-delay-millis: 10000
-  max-poll-attempts: 3
+  max-poll-attempts: 4
 
 report:
   translations:
