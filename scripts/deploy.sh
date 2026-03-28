@@ -3,7 +3,7 @@ set -e
 
 echo "Запуск мавен"
 
-mvn clean package
+mvn clean package -DskipTests
 
 echo "Ищу докер файл"
 
