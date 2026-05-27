@@ -1,0 +1,99 @@
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  datasource:
+    password: user
+    username: user
+    url: jdbc:postgresql://localhost:5432/user
+
+
+
+  shell:
+    interactive:
+      enabled: true
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: mvc
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        http.client.requests: true
+        hikaricp.connections.acquire: true
+        hikaricp.connections.usage: true
+      percentiles:
+        http.server.requests: [0.5, 0.95, 0.99]
+        http.client.requests: [0.5, 0.95, 0.99]
+        hikaricp.connections.acquire: [0.95, 0.99]
+        hikaricp.connections.usage: [0.95, 0.99]
+      slo:
+        http.server.requests: [100ms, 300ms, 1s, 3s, 10s]
+        http.client.requests: [100ms, 300ms, 1s, 3s, 10s]
+        hikaricp.connections.acquire: [10ms, 50ms, 100ms, 500ms, 1s]
+        hikaricp.connections.usage: [10ms, 50ms, 100ms, 500ms, 1s]
+
+security:
+  jwt:
+    secret_key: f707cfecff09f504045793b51315ebfcd67b545add7cf2ddaa8af62dd01252957c374e56de8a506cb19eb8e463a63cd350bc19cf42780b8a508df599734f22071cf26cc57dc0d6b21673e3d4a32a9dd7499260b21494bdb0295c4a39f5d1cdad0c9637e858504ea362777cdbd7981247a67629af6d43b1687ac279684f28a7493b3446cb09087efe16a6cc265bd0f267c2acb8e4e826b20f51489b5d6468e93614253933f7895ea5bdd1c055e7d9bf46ab718f2577bb2077df6322948856a07d9c662d1b615c4b67c4b79696d6dd9f5c65ac4880caec5b2a87a3973affae2457356384eb77bacf7b6f5a5e9ec86dc483eb987832682411d56a4f013599001e17
+    access_token_expiration: 36000000 # 10 hours
+    refresh_token_expiration: 252000000
+logging:
+  kafka:
+    bootstrap-servers: ${spring.kafka.bootstrap-servers}
+    api-topic: api-logs
+    error-topic: error-logs
+  level:
+    org.hibernate.SQL=DEBUG:
+
+graphhopper:
+  api-url: https://graphhopper.com/api/1/route
+  api-key: 14b0e1b6-4e04-40d9-9aba-15c2840fb9ec
+  min-latitude: 37.805051
+  max-latitude: 37.868170
+  min-longitude: 55.913529
+  max-longitude: 55.925741
+
+geoapify:
+  batch-reverse-url: https://api.geoapify.com/v1/batch/geocode/reverse
+  api-key: 68a0bd463e7345579363fbaea27e8a67
+  poll-delay-millis: 10000
+  max-poll-attempts: 5
+
+report:
+  translations:
+    vehicleMileageReport: Пробег автомобиля за период
+    vehicleProductionReport: Новые автомобили за период

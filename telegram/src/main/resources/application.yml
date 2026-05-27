@@ -1,0 +1,14 @@
+telegram:
+  bot:
+    token: 8166319145:AAFN_JhO_gQT2YMUrKz0x5hBp3Kffp3GvHU
+
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: telegram-bot
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer

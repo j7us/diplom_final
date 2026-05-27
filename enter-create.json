@@ -1,0 +1,20 @@
+[
+  {
+    "name": "test2",
+    "country": "testCity",
+    "productionCapacity": 5,
+    "timeZone": "+04:00"
+  },
+  {
+    "name": "test3",
+    "country": "testCity3",
+    "productionCapacity": 6,
+    "timeZone": "+04:00"
+  },
+  {
+    "name": "test4",
+    "country": "testCity4",
+    "productionCapacity": 7,
+    "timeZone": "+04:00"
+  }
+]

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="OFF" monitorInterval="30">
+    <Properties>
+        <Property name="kafkaBootstrapServers">${spring:logging.kafka.bootstrap-servers:-localhost:9092}</Property>
+        <Property name="apiLogsTopic">${spring:logging.kafka.api-topic:-api-logs}</Property>
+        <Property name="errorLogsTopic">${spring:logging.kafka.error-topic:-error-logs}</Property>
+        <Property name="logPattern">%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%t] %logger{36} - %msg%n%throwable</Property>
+        <Property name="jsonLogPattern">{"timestamp":"%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}","level":"%p","logger":"%c","thread":"%t","message":"%enc{%m}{JSON}","exception":"%enc{%throwable}{JSON}"}%n</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${logPattern}"/>
+        </Console>
+
+        <Kafka name="ApiLogsKafka" topic="${apiLogsTopic}" ignoreExceptions="true" syncSend="false">
+            <Property name="bootstrap.servers">${kafkaBootstrapServers}</Property>
+            <Property name="key.serializer">org.apache.kafka.common.serialization.StringSerializer</Property>
+            <Property name="value.serializer">org.apache.kafka.common.serialization.StringSerializer</Property>
+            <Property name="retries">0</Property>
+            <Property name="linger.ms">0</Property>
+            <Property name="request.timeout.ms">1000</Property>
+            <Property name="delivery.timeout.ms">2000</Property>
+            <Property name="max.block.ms">1000</Property>
+            <PatternLayout pattern="${jsonLogPattern}"/>
+        </Kafka>
+
+        <Kafka name="ErrorLogsKafka" topic="${errorLogsTopic}" ignoreExceptions="true" syncSend="false">
+            <Property name="bootstrap.servers">${kafkaBootstrapServers}</Property>
+            <Property name="key.serializer">org.apache.kafka.common.serialization.StringSerializer</Property>
+            <Property name="value.serializer">org.apache.kafka.common.serialization.StringSerializer</Property>
+            <Property name="retries">0</Property>
+            <Property name="linger.ms">0</Property>
+            <Property name="request.timeout.ms">1000</Property>
+            <Property name="delivery.timeout.ms">2000</Property>
+            <Property name="max.block.ms">1000</Property>
+            <PatternLayout pattern="${jsonLogPattern}"/>
+        </Kafka>
+
+        <Async name="AsyncApiLogsKafka">
+            <AppenderRef ref="ApiLogsKafka"/>
+        </Async>
+
+        <Async name="AsyncErrorLogsKafka">
+            <AppenderRef ref="ErrorLogsKafka"/>
+        </Async>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="org.apache.kafka" level="WARN" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Logger name="org.example.adapter.controller" level="INFO" additivity="true">
+            <AppenderRef ref="AsyncApiLogsKafka"/>
+        </Logger>
+
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncErrorLogsKafka" level="ERROR"/>
+        </Root>
+    </Loggers>
+</Configuration>

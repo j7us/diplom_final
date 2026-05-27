@@ -1,0 +1,25 @@
+package org.example.application.service;
+
+import lombok.RequiredArgsConstructor;
+import org.example.model.Manager;
+import org.example.application.repository.ManagerRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class ManagerService {
+    private final ManagerRepository managerRepository;
+
+    public Optional<Manager> findByUserName(String username) {
+        return managerRepository.findByUsername(username);
+    }
+
+    @Transactional
+    public Manager save(Manager manager) {
+        return managerRepository.save(manager);
+    }
+}
